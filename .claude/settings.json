@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev)",
+      "Bash(npm run build)",
+      "Bash(npm run test)",
+      "Bash(npm run lint)",
+      "Bash(npx supabase *)",
+      "Bash(npx shadcn@latest *)"
+    ]
+  },
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": ["-y", "@supabase/mcp-server"],
+      "env": {
+        "SUPABASE_URL": "PLATZHALTER - hier deine Supabase Project URL eintragen",
+        "SUPABASE_SERVICE_ROLE_KEY": "PLATZHALTER - hier deinen Service Role Key eintragen"
+      }
+    }
+  }
+}
