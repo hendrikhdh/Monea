@@ -6,6 +6,8 @@ import { toast } from 'sonner'
 import { addGoal, editGoal, removeGoal } from '@/app/(app)/goals/actions'
 import { createClient } from '@/lib/supabase/client'
 import { getGoalImageUrl } from '@/lib/supabase/goalImage'
+import { resizeImage } from '@/lib/utils/resizeImage'
+import { ImageCropper } from './ImageCropper'
 import type { Goal } from '@/lib/types/database'
 import { cn } from '@/lib/utils'
 
@@ -21,10 +23,13 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
   const [target, setTarget] = useState(goal ? String(goal.target_amount) : '')
   const [current, setCurrent] = useState(goal ? String(goal.current_amount) : '0')
   const [imagePath, setImagePath] = useState<string | null>(goal?.image_path ?? null)
+  const [imageAspect, setImageAspect] = useState<string>(goal?.image_aspect ?? '16:9')
   const [uploading, setUploading] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     goal?.image_path ? getGoalImageUrl(goal.image_path) : null
   )
+  // Cropper state
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -33,21 +38,36 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
       setTarget(String(goal.target_amount))
       setCurrent(String(goal.current_amount))
       setImagePath(goal.image_path)
+      setImageAspect(goal.image_aspect ?? '16:9')
       setPreviewUrl(goal.image_path ? getGoalImageUrl(goal.image_path) : null)
     } else {
       setName('')
       setTarget('')
       setCurrent('0')
       setImagePath(null)
+      setImageAspect('16:9')
       setPreviewUrl(null)
     }
   }, [goal])
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    setPreviewUrl(URL.createObjectURL(file))
+    try {
+      // Resize to max 1200px JPEG (handles HEIC + large files)
+      const resized = await resizeImage(file, 1200)
+      const url = URL.createObjectURL(resized)
+      setCropSrc(url)
+    } catch {
+      toast.error('Bild konnte nicht geladen werden.')
+    }
+  }
+
+  const handleCropDone = async (blob: Blob, aspect: string) => {
+    setCropSrc(null)
+    setPreviewUrl(URL.createObjectURL(blob))
+    setImageAspect(aspect)
     setUploading(true)
 
     try {
@@ -55,12 +75,11 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const ext = file.name.split('.').pop()
-      const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+      const path = `${user.id}/${crypto.randomUUID()}.jpg`
 
       const { error } = await supabase.storage
         .from('goal-images')
-        .upload(path, file, { upsert: true })
+        .upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
 
       if (error) throw error
       setImagePath(path)
@@ -69,20 +88,28 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
       toast.error(err instanceof Error ? err.message : 'Upload fehlgeschlagen.')
       setPreviewUrl(goal?.image_path ? getGoalImageUrl(goal.image_path) : null)
       setImagePath(goal?.image_path ?? null)
+      setImageAspect(goal?.image_aspect ?? '16:9')
     } finally {
       setUploading(false)
     }
   }
 
+  const handleCropCancel = () => {
+    setCropSrc(null)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
   const removeImage = () => {
     setImagePath(null)
     setPreviewUrl(null)
+    setCropSrc(null)
     if (fileRef.current) fileRef.current.value = ''
   }
 
   const [state, action, pending] = useActionState(
     async (_prev: unknown, formData: FormData) => {
       formData.set('image_path', imagePath || '')
+      formData.set('image_aspect', imageAspect)
 
       if (isEdit) {
         formData.set('id', goal.id)
@@ -98,6 +125,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
         toast.success('Sparziel erstellt!')
         setName(''); setTarget(''); setCurrent('0')
         setImagePath(null); setPreviewUrl(null)
+        setImageAspect('16:9')
         onDone?.()
       }
       return result
@@ -118,6 +146,20 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
     undefined
   )
 
+  // Show cropper if a file was selected
+  if (cropSrc) {
+    return (
+      <div className="flex flex-col gap-4">
+        <h3 className="text-center font-heading text-lg font-bold">Bildausschnitt wählen</h3>
+        <ImageCropper
+          imageSrc={cropSrc}
+          onCropDone={handleCropDone}
+          onCancel={handleCropCancel}
+        />
+      </div>
+    )
+  }
+
   return (
     <form action={action} className="flex flex-col items-center gap-6">
       <h3 className="font-heading text-lg font-bold">
@@ -129,12 +171,14 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
         <input
           ref={fileRef}
           type="file"
-          accept="image/jpeg,image/png,image/webp"
-          onChange={handleImageUpload}
+          accept="image/*"
+          onChange={handleFileSelect}
           className="hidden"
         />
         {previewUrl ? (
-          <div className="relative h-40 w-full overflow-hidden rounded-[2rem_1rem_2rem_2.5rem]">
+          <div className="relative w-full overflow-hidden rounded-[2rem_1rem_2rem_2.5rem]"
+            style={{ aspectRatio: imageAspect.replace(':', '/') }}
+          >
             <div
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${previewUrl})` }}

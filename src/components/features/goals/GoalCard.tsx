@@ -19,6 +19,15 @@ function getStatusColor(percentage: number) {
   return 'bg-muted-foreground/70'
 }
 
+function getAspectClass(aspect: string | null) {
+  switch (aspect) {
+    case '1:1': return 'aspect-square'
+    case '4:3': return 'aspect-[4/3]'
+    case '16:9': return 'aspect-[16/9]'
+    default: return 'aspect-[16/9]'
+  }
+}
+
 export function GoalCard({ goal, onClick }: GoalCardProps) {
   const percentage = goal.target_amount > 0
     ? Math.min(Math.round((goal.current_amount / goal.target_amount) * 100), 100)
@@ -28,6 +37,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
     new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(v)
 
   const imageUrl = goal.image_path ? getGoalImageUrl(goal.image_path) : null
+  const hasImage = !!imageUrl
 
   return (
     <button
@@ -35,7 +45,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
       onClick={onClick}
       className={cn(
         'relative flex w-full flex-col justify-end overflow-hidden rounded-[2rem_1rem_2rem_2.5rem] text-left transition-all active:scale-[0.97]',
-        imageUrl ? 'h-56' : 'h-56 bg-surface-container'
+        hasImage ? getAspectClass(goal.image_aspect) : 'h-56 bg-surface-container'
       )}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
     >
@@ -50,7 +60,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
       {/* Dark gradient overlay */}
       <div className={cn(
         'absolute inset-0',
-        imageUrl
+        hasImage
           ? 'bg-gradient-to-t from-black/80 via-black/30 to-transparent'
           : 'bg-gradient-to-t from-black/10 to-transparent'
       )} />
@@ -69,13 +79,13 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
       <div className="relative z-10 p-6">
         <h3 className={cn(
           'font-display text-2xl tracking-tight',
-          imageUrl ? 'text-white' : 'text-foreground'
+          hasImage ? 'text-white' : 'text-foreground'
         )}>
           {goal.name}
         </h3>
         <p className={cn(
           'mt-1 text-sm font-medium',
-          imageUrl ? 'text-white/70' : 'text-muted-foreground'
+          hasImage ? 'text-white/70' : 'text-muted-foreground'
         )}>
           {format(goal.current_amount)} von {format(goal.target_amount)}
         </p>
@@ -83,12 +93,12 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
         {/* Progress bar */}
         <div className={cn(
           'mt-3 h-2 w-full overflow-hidden rounded-full',
-          imageUrl ? 'bg-white/20' : 'bg-border'
+          hasImage ? 'bg-white/20' : 'bg-border'
         )}>
           <div
             className={cn(
               'h-full rounded-full transition-all duration-500',
-              percentage >= 100 ? 'bg-success' : imageUrl ? 'bg-white' : 'bg-primary'
+              percentage >= 100 ? 'bg-success' : hasImage ? 'bg-white' : 'bg-primary'
             )}
             style={{ width: `${percentage}%` }}
           />

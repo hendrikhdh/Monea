@@ -9,6 +9,7 @@ export async function addGoal(formData: FormData) {
     name: formData.get('name'),
     target_amount: formData.get('target_amount'),
     current_amount: formData.get('current_amount'),
+    image_aspect: formData.get('image_aspect') || '16:9',
   })
 
   if (!result.success) {
@@ -18,7 +19,11 @@ export async function addGoal(formData: FormData) {
   const imagePath = formData.get('image_path') as string | null
 
   try {
-    await createGoal({ ...result.data, image_path: imagePath || null })
+    await createGoal({
+      ...result.data,
+      image_path: imagePath || null,
+      image_aspect: result.data.image_aspect ?? '16:9',
+    })
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to create goal.' }
   }
@@ -36,6 +41,7 @@ export async function editGoal(formData: FormData) {
     name: formData.get('name'),
     target_amount: formData.get('target_amount'),
     current_amount: formData.get('current_amount'),
+    image_aspect: formData.get('image_aspect') || '16:9',
   })
 
   if (!result.success) {
@@ -45,7 +51,11 @@ export async function editGoal(formData: FormData) {
   const imagePath = formData.get('image_path') as string | null
 
   try {
-    await updateGoal(id, { ...result.data, image_path: imagePath || null })
+    await updateGoal(id, {
+      ...result.data,
+      image_path: imagePath || null,
+      image_aspect: result.data.image_aspect ?? '16:9',
+    })
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to update goal.' }
   }

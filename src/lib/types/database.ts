@@ -62,5 +62,6 @@ export interface Goal {
   target_amount: number
   current_amount: number
   image_path: string | null
+  image_aspect: string | null
   created_at: string
 }

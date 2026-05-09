@@ -13,7 +13,7 @@ export async function getGoals(): Promise<Goal[]> {
 }
 
 export async function createGoal(
-  goal: Pick<Goal, 'name' | 'target_amount' | 'current_amount' | 'image_path'>
+  goal: Pick<Goal, 'name' | 'target_amount' | 'current_amount' | 'image_path' | 'image_aspect'>
 ): Promise<Goal> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -32,7 +32,7 @@ export async function createGoal(
 
 export async function updateGoal(
   id: string,
-  goal: Partial<Pick<Goal, 'name' | 'target_amount' | 'current_amount' | 'image_path'>>
+  goal: Partial<Pick<Goal, 'name' | 'target_amount' | 'current_amount' | 'image_path' | 'image_aspect'>>
 ): Promise<Goal> {
   const supabase = await createClient()
   const { data, error } = await supabase
