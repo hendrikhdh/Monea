@@ -9,7 +9,7 @@ export const goalSchema = z.object({
     .number()
     .min(0, 'Amount cannot be negative.')
     .default(0),
-  image_aspect: z.enum(['16:9', '4:3', '1:1']).optional().default('16:9'),
+  image_aspect: z.enum(['21:9', '16:9', '4:3', '1:1']).optional().default('16:9'),
 })
 
 export type GoalFormData = z.infer<typeof goalSchema>

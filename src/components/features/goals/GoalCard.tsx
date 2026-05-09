@@ -21,10 +21,11 @@ function getStatusColor(percentage: number) {
 
 function getAspectClass(aspect: string | null) {
   switch (aspect) {
-    case '1:1': return 'aspect-square'
-    case '4:3': return 'aspect-[4/3]'
-    case '16:9': return 'aspect-[16/9]'
-    default: return 'aspect-[16/9]'
+    case '1:1': return 'aspect-square max-h-[55vw]'
+    case '4:3': return 'aspect-[4/3] max-h-[50vw]'
+    case '16:9': return 'aspect-[16/9] max-h-[45vw]'
+    case '21:9': return 'aspect-[21/9] max-h-[40vw]'
+    default: return 'aspect-[16/9] max-h-[45vw]'
   }
 }
 

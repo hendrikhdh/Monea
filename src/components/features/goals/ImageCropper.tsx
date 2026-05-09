@@ -5,6 +5,7 @@ import ReactCrop, { type Crop, type PixelCrop, centerCrop, makeAspectCrop } from
 import 'react-image-crop/dist/ReactCrop.css'
 
 const ASPECT_OPTIONS = [
+  { label: '21:9', value: 21 / 9 },
   { label: '16:9', value: 16 / 9 },
   { label: '4:3', value: 4 / 3 },
   { label: '1:1', value: 1 },
@@ -111,13 +112,13 @@ export function ImageCropper({ imageSrc, onCropDone, onCancel }: ImageCropperPro
       </div>
 
       {/* Crop area */}
-      <div className="flex max-h-[50vh] items-center justify-center overflow-hidden rounded-xl">
+      <div className="flex max-h-[40vh] items-center justify-center overflow-hidden rounded-xl">
         <ReactCrop
           crop={crop}
           onChange={(c) => setCrop(c)}
           onComplete={(c) => setCompletedCrop(c)}
           aspect={aspect}
-          className="max-h-[50vh]"
+          className="max-h-[40vh]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -125,7 +126,7 @@ export function ImageCropper({ imageSrc, onCropDone, onCancel }: ImageCropperPro
             src={imageSrc}
             alt="Crop preview"
             onLoad={onImageLoad}
-            className="max-h-[50vh] w-auto"
+            className="max-h-[40vh] w-auto"
             style={{ maxWidth: '100%' }}
           />
         </ReactCrop>

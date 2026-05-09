@@ -176,7 +176,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
           className="hidden"
         />
         {previewUrl ? (
-          <div className="relative w-full overflow-hidden rounded-[2rem_1rem_2rem_2.5rem]"
+          <div className="relative w-full max-h-[30vh] overflow-hidden rounded-[2rem_1rem_2rem_2.5rem]"
             style={{ aspectRatio: imageAspect.replace(':', '/') }}
           >
             <div
