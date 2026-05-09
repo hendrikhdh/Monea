@@ -1,0 +1,111 @@
+export const MOTIVATION_QUOTES = [
+  // Wealth mindset
+  "You're not expensive. You're worth investing in.",
+  "Rich is not a goal. Rich is a standard.",
+  "She built her empire on coffee and compound interest.",
+  "Your bank account is a reflection of your habits, not your worth — but let's grow both.",
+  "Money loves a woman with a plan.",
+  "Financial freedom looks gorgeous on you.",
+  "She doesn't chase. She attracts. Even her investments.",
+  "Your future self is thanking you for saving today.",
+  "Wealth whispers. Let your portfolio do the talking.",
+  "A girl who invests is a girl who thrives.",
+
+  // Saving & budgeting
+  "Every euro saved is a euro closer to your dream life.",
+  "Budget like a CEO. Spend like you have taste.",
+  "Saving money is self-care for your future.",
+  "Small deposits. Big dreams. Unstoppable energy.",
+  "She tracks every euro because she values every euro.",
+  "Your savings account called — it wants more attention.",
+  "Discipline today, designer tomorrow.",
+  "A budget isn't restrictive. It's a plan for your freedom.",
+  "She said no to the impulse buy and yes to her goals.",
+  "Consistency is the most elegant financial strategy.",
+
+  // Ambition & success
+  "She has the vision of a CEO and the discipline of an athlete.",
+  "Ambition looks beautiful on you, darling.",
+  "You were born to stand out — and to build generational wealth.",
+  "Dream big. Save bigger. Glow the biggest.",
+  "The goal isn't to be rich. The goal is to have options.",
+  "She wakes up early, works out, and watches her money grow.",
+  "Your ambition is your most attractive quality.",
+  "She's not lucky. She's strategic.",
+  "Success is a lifestyle, not a destination.",
+  "Main character energy includes financial literacy.",
+
+  // Independence & empowerment
+  "Financially independent women are the new standard.",
+  "Never depend on one income. Even your money should multitask.",
+  "She doesn't wait to be saved. She saves — literally.",
+  "The most powerful accessory? A healthy net worth.",
+  "Your independence is funded by your choices.",
+  "She bought it herself. That's the whole vibe.",
+  "A woman who handles her finances handles her life.",
+  "Self-made looks stunning in every light.",
+  "No one can take what you've built for yourself.",
+  "Financial independence is the ultimate glow-up.",
+
+  // Luxury & lifestyle
+  "Invest in yourself first. Everything else follows.",
+  "Luxury is a reward for discipline.",
+  "She sips her matcha and checks her investments.",
+  "Elegance is knowing where every euro goes.",
+  "Live below your means. Dream above your ceiling.",
+  "Quiet luxury starts with a quiet, growing portfolio.",
+  "The richest women in the room rarely talk about money.",
+  "Your money should work as hard as you do in Pilates.",
+  "She glows different when her finances are in order.",
+  "Treat your budget like your skincare — consistent and intentional.",
+
+  // Mindset & growth
+  "Money flows to those who respect it.",
+  "A growth mindset applies to your bank account too.",
+  "She replaced shopping therapy with investing therapy.",
+  "Your relationship with money defines your relationship with freedom.",
+  "Think long-term. Act with grace.",
+  "Wealthy women don't panic. They plan.",
+  "Every financial decision is a vote for your future lifestyle.",
+  "She upgraded her mindset before she upgraded her wardrobe.",
+  "Patience is the secret ingredient to wealth.",
+  "The best investment you'll ever make is in yourself.",
+
+  // Daily motivation
+  "Today is a great day to not spend on things you don't need.",
+  "Wake up. Be grateful. Check your budget. Conquer.",
+  "You're one good habit away from a completely different life.",
+  "Make your money moves in silence. Let the results speak.",
+  "Progress over perfection — even in finance.",
+  "She's building quietly and blooming loudly.",
+  "Your daily choices create your yearly results.",
+  "Less impulse, more intention. That's the formula.",
+  "She showed up for her goals today — and every day.",
+  "Small steps, big balance. Keep going, gorgeous.",
+
+  // Investing & growing wealth
+  "Compound interest is a girl's best friend.",
+  "Start investing now. Perfection is not a prerequisite.",
+  "She doesn't just save. She multiplies.",
+  "Your money should have a job — and that job is growing.",
+  "An invested euro today is a hundred tomorrow.",
+  "She learned about ETFs and never looked back.",
+  "Diversify your portfolio like you diversify your wardrobe.",
+  "Time in the market beats timing the market. Always.",
+  "She let her money work while she worked on herself.",
+  "The stock market rewards patience — just like Pilates.",
+
+  // Confidence & self-worth
+  "Know your worth, then add tax.",
+  "She negotiated her salary and didn't apologize.",
+  "Confidence is silent. Your investments are loud enough.",
+  "You deserve a life that doesn't require a sale.",
+  "She stopped undercharging and started overdelivering.",
+  "Your financial confidence is magnetic.",
+  "She walks into every room knowing her net worth — and her self-worth.",
+  "Never shrink your dreams to fit your budget. Grow the budget.",
+  "She's not bossy. She's the boss — of her finances.",
+  "The most beautiful thing a woman can wear is financial security.",
+] as const
+
+export type MotivationQuote = (typeof MOTIVATION_QUOTES)[number]

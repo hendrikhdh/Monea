@@ -1,0 +1,140 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+import { Plus } from 'lucide-react'
+import { BottomSheet } from '@/components/ui/bottom-sheet'
+import { AnimatedSection } from '@/components/ui/animated-section'
+import { TransactionSearch } from './TransactionSearch'
+import { TransactionFilters } from './TransactionFilters'
+import { TransactionGroup } from './TransactionGroup'
+import { AddTransactionForm } from './AddTransactionForm'
+import type { TransactionWithCategory, Category } from '@/lib/types/database'
+
+interface TransactionsViewProps {
+  transactions: TransactionWithCategory[]
+  categories: Category[]
+  initialFilter?: 'all' | 'income' | 'expense'
+}
+
+function groupByDate(transactions: TransactionWithCategory[]) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const groups: { label: string; dateLabel: string; transactions: TransactionWithCategory[] }[] = []
+  const map = new Map<string, TransactionWithCategory[]>()
+
+  for (const tx of transactions) {
+    const dateKey = tx.date
+    if (!map.has(dateKey)) map.set(dateKey, [])
+    map.get(dateKey)!.push(tx)
+  }
+
+  const dateFormat = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short' })
+  const fullFormat = new Intl.DateTimeFormat('de-DE', { day: 'numeric', month: 'short', year: 'numeric' })
+
+  for (const [dateKey, txs] of map) {
+    const d = new Date(dateKey + 'T00:00:00')
+    let label: string
+    if (d.getTime() === today.getTime()) {
+      label = 'Heute'
+    } else if (d.getTime() === yesterday.getTime()) {
+      label = 'Gestern'
+    } else {
+      label = fullFormat.format(d)
+    }
+    groups.push({
+      label,
+      dateLabel: dateFormat.format(d),
+      transactions: txs,
+    })
+  }
+
+  return groups
+}
+
+export function TransactionsView({ transactions, categories, initialFilter = 'all' }: TransactionsViewProps) {
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const [editTransaction, setEditTransaction] = useState<TransactionWithCategory | null>(null)
+  const [search, setSearch] = useState('')
+  const [filter, setFilter] = useState<'all' | 'income' | 'expense'>(initialFilter)
+
+  const filtered = useMemo(() => {
+    let result = transactions
+    if (filter !== 'all') {
+      result = result.filter((tx) => tx.type === filter)
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (tx) =>
+          tx.note?.toLowerCase().includes(q) ||
+          tx.category?.name.toLowerCase().includes(q)
+      )
+    }
+    return result
+  }, [transactions, filter, search])
+
+  const groups = useMemo(() => groupByDate(filtered), [filtered])
+
+  const handleEdit = (tx: TransactionWithCategory) => {
+    setEditTransaction(tx)
+    setSheetOpen(true)
+  }
+
+  const handleClose = () => {
+    setSheetOpen(false)
+    setEditTransaction(null)
+  }
+
+  const handleNew = () => {
+    setEditTransaction(null)
+    setSheetOpen(true)
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-2xl px-6">
+      <AnimatedSection delay={0}>
+        <TransactionSearch value={search} onChange={setSearch} />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.05} className="mt-6 mb-8">
+        <TransactionFilters active={filter} onChange={setFilter} />
+      </AnimatedSection>
+
+      {groups.length === 0 ? (
+        <p className="py-12 text-center text-sm text-muted-foreground">
+          Keine Transaktionen gefunden.
+        </p>
+      ) : (
+        groups.map((group) => (
+          <AnimatedSection key={group.label} delay={0.1}>
+            <TransactionGroup
+              label={group.label}
+              dateLabel={group.dateLabel}
+              transactions={group.transactions}
+              onEdit={handleEdit}
+            />
+          </AnimatedSection>
+        ))
+      )}
+
+      {/* FAB */}
+      <button
+        onClick={handleNew}
+        className="fixed bottom-28 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-primary-foreground shadow-lg transition-all active:scale-90"
+      >
+        <Plus size={24} />
+      </button>
+
+      <BottomSheet open={sheetOpen} onClose={handleClose}>
+        <AddTransactionForm
+          categories={categories}
+          transaction={editTransaction}
+          onDone={handleClose}
+        />
+      </BottomSheet>
+    </div>
+  )
+}

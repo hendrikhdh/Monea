@@ -6,13 +6,13 @@
 - **Description**: A mobile-first finance planner and budget tracker app with transaction management, category organization, and dashboard analytics.
 - **Target audience**: Young ambitious women with a high aesthetic standard and a preference for a luxurious, clean, and elegant app experience.
 - **Design reference**: Stitch AI export in `.claude/references/stitch-imports/` (to be added)
-- **Status**: Planning
+- **Status**: MVP Complete
 
 ## Core Features (MVP)
-1. [ ] Authentication – Email/Password, Google OAuth, Apple Sign-In
-2. [ ] Transactions – Add, view, and delete income/expense entries
-3. [ ] Categories – Add and delete custom categories (with icon and color)
-4. [ ] Dashboard/Home – Total balance overview and monthly balance summary
+1. [x] Authentication – Email/Password, Google OAuth, Magic Link, Apple (placeholder)
+2. [x] Transactions – Add, view, edit, delete income/expense entries
+3. [x] Categories – Add, edit, delete custom categories (with icon and color)
+4. [x] Dashboard/Home – Total balance overview and monthly balance summary
 
 ## Feature Backlog (Post-MVP)
 - [ ] Budget planning per category per month
@@ -90,21 +90,31 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ## Available Commands
 ```powershell
-npm run dev       # Start dev server
+npm run dev       # Start dev server (Turbopack) – NOT for iPhone testing!
 npm run build     # Production build
+npm run start     # Production server – USE THIS for iPhone testing
 npm run test      # Run tests
 npm run lint      # Lint check
 ```
 
 ## Current Sprint / Focus
-**Currently working on**: Project setup and initial Next.js PWA scaffold
-**Blocked by**: Nothing – ready to start
-**Next up**: Feature 1 – Authentication (Google, Apple, Email/Password)
+**Currently working on**: UI polish, iPhone optimization
+**Blocked by**: Nothing
+**Next up**: Default categories on signup, Goals feature (DB + CRUD)
 
 ## Known Issues
-- None yet
+- Turbopack dev mode (`npm run dev`) does not hydrate on iPhone — buttons visible but not clickable. Use `npm run build && npm run start` for mobile testing.
+- Apple Sign-In is a placeholder (not yet configured)
+
+## iOS Safari Pitfalls
+- NEVER use inline `opacity: 0` with CSS `animation-fill-mode: forwards` — breaks touch events on iOS. Use `fill-mode: both` instead.
+- NEVER use `autoFocus` on inputs inside Bottom Sheets — iOS keyboard pushes content offscreen.
+- Always add `will-change: transform` on animated overlay containers for 120Hz ProMotion.
+- Bottom Sheet content must fit in ~750px (iPhone 13+ viewport) without scrolling.
 
 ## Notes
-- Design will be defined via Stitch AI export – do not hardcode colors until design is imported
+- Design is implemented from Stitch AI export — warm luxury palette with extended tokens
 - The app should feel premium and native – smooth animations, no browser-like UI
 - Luxury feel is a core requirement, not an afterthought
+- Fonts: Plus Jakarta Sans (heading), Be Vietnam Pro (body), Fraunces (display serif)
+- Organic shapes system: 10 blob border-radius shapes, stable per category ID hash

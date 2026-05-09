@@ -1,0 +1,246 @@
+'use client'
+
+import { useActionState, useState, useEffect, useRef } from 'react'
+import { Check, Trash2, ImagePlus, X } from 'lucide-react'
+import { toast } from 'sonner'
+import { addGoal, editGoal, removeGoal } from '@/app/(app)/goals/actions'
+import { createClient } from '@/lib/supabase/client'
+import { getGoalImageUrl } from '@/lib/supabase/goalImage'
+import type { Goal } from '@/lib/types/database'
+import { cn } from '@/lib/utils'
+
+interface AddGoalFormProps {
+  goal?: Goal | null
+  onDone?: () => void
+}
+
+export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
+  const isEdit = !!goal
+
+  const [name, setName] = useState(goal?.name ?? '')
+  const [target, setTarget] = useState(goal ? String(goal.target_amount) : '')
+  const [current, setCurrent] = useState(goal ? String(goal.current_amount) : '0')
+  const [imagePath, setImagePath] = useState<string | null>(goal?.image_path ?? null)
+  const [uploading, setUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    goal?.image_path ? getGoalImageUrl(goal.image_path) : null
+  )
+  const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (goal) {
+      setName(goal.name)
+      setTarget(String(goal.target_amount))
+      setCurrent(String(goal.current_amount))
+      setImagePath(goal.image_path)
+      setPreviewUrl(goal.image_path ? getGoalImageUrl(goal.image_path) : null)
+    } else {
+      setName('')
+      setTarget('')
+      setCurrent('0')
+      setImagePath(null)
+      setPreviewUrl(null)
+    }
+  }, [goal])
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setPreviewUrl(URL.createObjectURL(file))
+    setUploading(true)
+
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Not authenticated')
+
+      const ext = file.name.split('.').pop()
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+
+      const { error } = await supabase.storage
+        .from('goal-images')
+        .upload(path, file, { upsert: true })
+
+      if (error) throw error
+      setImagePath(path)
+      toast.success('Bild hochgeladen!')
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload fehlgeschlagen.')
+      setPreviewUrl(goal?.image_path ? getGoalImageUrl(goal.image_path) : null)
+      setImagePath(goal?.image_path ?? null)
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const removeImage = () => {
+    setImagePath(null)
+    setPreviewUrl(null)
+    if (fileRef.current) fileRef.current.value = ''
+  }
+
+  const [state, action, pending] = useActionState(
+    async (_prev: unknown, formData: FormData) => {
+      formData.set('image_path', imagePath || '')
+
+      if (isEdit) {
+        formData.set('id', goal.id)
+        const result = await editGoal(formData)
+        if (result?.error) toast.error(result.error)
+        else { toast.success('Sparziel aktualisiert!'); onDone?.() }
+        return result
+      }
+
+      const result = await addGoal(formData)
+      if (result?.error) toast.error(result.error)
+      else {
+        toast.success('Sparziel erstellt!')
+        setName(''); setTarget(''); setCurrent('0')
+        setImagePath(null); setPreviewUrl(null)
+        onDone?.()
+      }
+      return result
+    },
+    undefined
+  )
+
+  const [, deleteAction, deletePending] = useActionState(
+    async (_prev: unknown) => {
+      if (!goal) return
+      const formData = new FormData()
+      formData.set('id', goal.id)
+      const result = await removeGoal(formData)
+      if (result?.error) toast.error(result.error)
+      else { toast.success('Sparziel gelöscht.'); onDone?.() }
+      return result
+    },
+    undefined
+  )
+
+  return (
+    <form action={action} className="flex flex-col items-center gap-6">
+      <h3 className="font-heading text-lg font-bold">
+        {isEdit ? 'Sparziel bearbeiten' : 'Neues Sparziel'}
+      </h3>
+
+      {/* Image upload area */}
+      <div className="relative w-full">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        {previewUrl ? (
+          <div className="relative h-40 w-full overflow-hidden rounded-[2rem_1rem_2rem_2.5rem]">
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${previewUrl})` }}
+            />
+            <div className="absolute inset-0 bg-black/20" />
+            <button
+              type="button"
+              onClick={removeImage}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white transition-all active:scale-90"
+            >
+              <X size={16} />
+            </button>
+            {uploading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <span className="text-sm font-semibold text-white">Uploading…</span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex h-40 w-full flex-col items-center justify-center gap-2 rounded-[2rem_1rem_2rem_2.5rem] border-2 border-dashed border-border bg-surface-container-low text-muted-foreground transition-all active:scale-[0.98]"
+          >
+            <ImagePlus size={28} />
+            <span className="text-sm font-medium">Bild hinzufügen</span>
+          </button>
+        )}
+      </div>
+
+      {/* Name */}
+      <input
+        name="name"
+        placeholder="Name des Sparziels"
+        className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center font-display text-xl placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
+        required
+        disabled={pending}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      {/* Target amount */}
+      <div className="flex w-full gap-3">
+        <div className="flex-1">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Ziel
+          </label>
+          <input
+            name="target_amount"
+            type="number"
+            step="1"
+            min="1"
+            placeholder="5.000"
+            className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
+            required
+            disabled={pending}
+            value={target}
+            onChange={(e) => setTarget(e.target.value)}
+          />
+        </div>
+        <div className="flex-1">
+          <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+            Gespart
+          </label>
+          <input
+            name="current_amount"
+            type="number"
+            step="1"
+            min="0"
+            placeholder="0"
+            className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
+            disabled={pending}
+            value={current}
+            onChange={(e) => setCurrent(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {state?.error && (
+        <p className="text-sm text-destructive">{state.error}</p>
+      )}
+
+      {/* Action buttons */}
+      <div className="flex w-full gap-3">
+        {isEdit && (
+          <button
+            type="button"
+            disabled={deletePending}
+            onClick={() => deleteAction()}
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-destructive/20 text-destructive transition-all active:scale-95 disabled:opacity-40"
+          >
+            <Trash2 size={20} />
+          </button>
+        )}
+        <button
+          type="submit"
+          disabled={pending || uploading || !name.trim() || !target}
+          className={cn(
+            'flex h-14 flex-1 items-center justify-center gap-3 rounded-full font-heading text-lg font-bold tracking-wide shadow-[0_15px_30px_rgba(62,39,35,0.2)] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:shadow-none',
+            'bg-primary-container text-primary-foreground'
+          )}
+        >
+          <span>{pending ? 'Speichern…' : isEdit ? 'Aktualisieren' : 'Speichern'}</span>
+          {!pending && <Check size={20} />}
+        </button>
+      </div>
+    </form>
+  )
+}
