@@ -56,6 +56,33 @@ export async function getTotalBalance() {
   return balance
 }
 
+export async function getSpendingByCategory(year: number, month: number) {
+  const supabase = await createClient()
+  const startDate = `${year}-${String(month).padStart(2, '0')}-01`
+  const endDate =
+    month === 12
+      ? `${year + 1}-01-01`
+      : `${year}-${String(month + 1).padStart(2, '0')}-01`
+
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('category_id, amount')
+    .eq('type', 'expense')
+    .gte('date', startDate)
+    .lt('date', endDate)
+
+  if (error) throw error
+
+  const map = new Map<string, number>()
+  for (const tx of data ?? []) {
+    if (!tx.category_id) continue
+    const current = map.get(tx.category_id) ?? 0
+    map.set(tx.category_id, current + Number(tx.amount))
+  }
+
+  return map
+}
+
 export async function createTransaction(
   tx: Pick<Transaction, 'category_id' | 'amount' | 'type' | 'date' | 'note'>
 ): Promise<Transaction> {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ChevronRight, FolderOpen, LogOut, User } from 'lucide-react'
+import { ChevronRight, FolderOpen, PiggyBank, User } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { SignOutButton } from '@/components/features/settings/SignOutButton'
 
@@ -35,6 +35,14 @@ export default async function SettingsPage() {
         >
           <FolderOpen size={20} className="text-muted-foreground" />
           <span className="flex-1 font-medium">Kategorien</span>
+          <ChevronRight size={18} className="text-muted-foreground" />
+        </Link>
+        <Link
+          href="/budgets"
+          className="flex items-center gap-4 rounded-xl bg-surface-container-low p-5 transition-colors hover:bg-surface-container-high active:scale-[0.98]"
+        >
+          <PiggyBank size={20} className="text-muted-foreground" />
+          <span className="flex-1 font-medium">Budgets</span>
           <ChevronRight size={18} className="text-muted-foreground" />
         </Link>
       </div>

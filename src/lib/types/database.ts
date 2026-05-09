@@ -23,6 +23,38 @@ export interface TransactionWithCategory extends Transaction {
   category: Category | null
 }
 
+export interface Budget {
+  id: string
+  user_id: string
+  category_id: string
+  year: number
+  month: number
+  amount: number
+  created_at: string
+}
+
+export interface BudgetWithCategory extends Budget {
+  category: Category
+}
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  category_id: string | null
+  amount: number
+  type: 'income' | 'expense'
+  note: string | null
+  interval: 'weekly' | 'monthly' | 'yearly'
+  start_date: string
+  next_due: string
+  is_active: boolean
+  created_at: string
+}
+
+export interface RecurringTransactionWithCategory extends RecurringTransaction {
+  category: Category | null
+}
+
 export interface Goal {
   id: string
   user_id: string

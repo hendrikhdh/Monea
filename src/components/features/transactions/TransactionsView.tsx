@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { AnimatedSection } from '@/components/ui/animated-section'
+import { TransactionTabs } from './TransactionTabs'
 import { TransactionSearch } from './TransactionSearch'
 import { TransactionFilters } from './TransactionFilters'
 import { TransactionGroup } from './TransactionGroup'
@@ -94,8 +95,12 @@ export function TransactionsView({ transactions, categories, initialFilter = 'al
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6">
+    <div className="mx-auto w-full max-w-2xl space-y-4 px-6">
       <AnimatedSection delay={0}>
+        <TransactionTabs active="single" />
+      </AnimatedSection>
+
+      <AnimatedSection delay={0.03}>
         <TransactionSearch value={search} onChange={setSearch} />
       </AnimatedSection>
 

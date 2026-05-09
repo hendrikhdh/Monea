@@ -1,5 +1,7 @@
 import { getTotalBalance, getMonthlyStats, getTransactions } from '@/lib/supabase/transactions'
 import { getGoals } from '@/lib/supabase/goals'
+import { getTotalBudgetForMonth } from '@/lib/supabase/budgets'
+import { processRecurringTransactions } from '@/lib/supabase/recurring'
 import { BalanceCard } from '@/components/features/dashboard/BalanceCard'
 import { MonthlyOverview } from '@/components/features/dashboard/MonthlyOverview'
 import { MonthlyBudget } from '@/components/features/dashboard/MonthlyBudget'
@@ -13,11 +15,15 @@ export default async function DashboardPage() {
   const currentYear = now.getFullYear()
   const currentMonth = now.getMonth() + 1
 
-  const [balance, monthlyStats, recentTransactions, goals] = await Promise.all([
+  // Process any due recurring transactions before loading data
+  await processRecurringTransactions().catch(() => {})
+
+  const [balance, monthlyStats, recentTransactions, goals, totalBudget] = await Promise.all([
     getTotalBalance(),
     getMonthlyStats(currentYear, currentMonth),
     getTransactions(5),
     getGoals(),
+    getTotalBudgetForMonth(currentYear, currentMonth),
   ])
 
   return (
@@ -32,7 +38,7 @@ export default async function DashboardPage() {
           initialExpenses={monthlyStats.expenses}
         />
       }
-      monthlyBudget={<MonthlyBudget spent={monthlyStats.expenses} />}
+      monthlyBudget={<MonthlyBudget spent={monthlyStats.expenses} budget={totalBudget} />}
       goals={<DashboardGoals goals={goals} />}
       recentTransactions={<RecentTransactions transactions={recentTransactions} />}
     />

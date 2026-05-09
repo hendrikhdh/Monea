@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Receipt, Trophy } from 'lucide-react'
+import { LayoutDashboard, Receipt, BarChart3, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transaktionen', icon: Receipt },
+  { href: '/analytics', label: 'Analyse', icon: BarChart3 },
   { href: '/goals', label: 'Ziele', icon: Trophy },
 ]
 
@@ -23,7 +24,7 @@ export function BottomNav() {
             key={href}
             href={href}
             className={cn(
-              'flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-full px-5 py-2 text-[11px] font-semibold uppercase tracking-widest transition-all duration-300 active:scale-90',
+              'flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-full px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 active:scale-90',
               isActive
                 ? 'bg-secondary text-secondary-foreground'
                 : 'text-muted-foreground hover:scale-110'
