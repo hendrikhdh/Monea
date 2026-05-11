@@ -95,35 +95,41 @@ export function TransactionsView({ transactions, categories, initialFilter = 'al
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4 px-6">
-      <AnimatedSection delay={0}>
-        <TransactionTabs active="single" />
-      </AnimatedSection>
+    <div className="mx-auto w-full max-w-2xl px-6 pb-24">
+      {/* Sticky controls: Tabs + Search + Filters */}
+      <div className="sticky top-20 z-30 -mx-6 -mt-4 space-y-3 bg-background/70 px-6 pb-4 pt-7 backdrop-blur-xl">
+        <AnimatedSection delay={0}>
+          <TransactionTabs active="single" />
+        </AnimatedSection>
 
-      <AnimatedSection delay={0.03}>
-        <TransactionSearch value={search} onChange={setSearch} />
-      </AnimatedSection>
+        <AnimatedSection delay={0.03}>
+          <TransactionSearch value={search} onChange={setSearch} />
+        </AnimatedSection>
 
-      <AnimatedSection delay={0.05} className="mt-6 mb-8">
-        <TransactionFilters active={filter} onChange={setFilter} />
-      </AnimatedSection>
+        <AnimatedSection delay={0.05}>
+          <TransactionFilters active={filter} onChange={setFilter} />
+        </AnimatedSection>
+      </div>
 
-      {groups.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          Keine Transaktionen gefunden.
-        </p>
-      ) : (
-        groups.map((group) => (
-          <AnimatedSection key={group.label} delay={0.1}>
-            <TransactionGroup
-              label={group.label}
-              dateLabel={group.dateLabel}
-              transactions={group.transactions}
-              onEdit={handleEdit}
-            />
-          </AnimatedSection>
-        ))
-      )}
+      {/* List */}
+      <div className="space-y-4 pt-6">
+        {groups.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            Keine Transaktionen gefunden.
+          </p>
+        ) : (
+          groups.map((group) => (
+            <AnimatedSection key={group.label} delay={0.1}>
+              <TransactionGroup
+                label={group.label}
+                dateLabel={group.dateLabel}
+                transactions={group.transactions}
+                onEdit={handleEdit}
+              />
+            </AnimatedSection>
+          ))
+        )}
+      </div>
 
       {/* FAB */}
       <button

@@ -72,7 +72,7 @@ export function TransactionCard({
       type="button"
       onClick={() => onEdit?.(transaction)}
       className={cn(
-        'flex w-full items-center justify-between p-5 text-left transition-all active:scale-[0.98]',
+        'flex w-full items-center gap-4 p-4 text-left transition-all active:scale-[0.98]',
         BLOB_SHAPES[blobIndex],
         transaction.type === 'income'
           ? 'border-2 border-secondary bg-background'
@@ -80,44 +80,43 @@ export function TransactionCard({
       )}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
     >
-      <div className="flex items-center gap-4">
-        <div
-          className={cn(
-            'flex h-14 w-14 items-center justify-center',
-            transaction.category
-              ? getShapeForCategory(transaction.category.id)
-              : 'rounded-full'
-          )}
-          style={{
-            backgroundColor: transaction.category
-              ? `${transaction.category.color}25`
-              : 'var(--secondary)',
-          }}
-        >
-          {IconComponent ? (
-            <IconComponent
-              size={22}
-              style={{ color: transaction.category?.color }}
-            />
-          ) : (
-            <span className="text-sm text-muted-foreground">?</span>
-          )}
-        </div>
-        <div>
-          <p className="font-heading text-lg font-bold text-foreground">
-            {transaction.note || transaction.category?.name || 'Transaction'}
-          </p>
-          <p className="text-sm font-medium text-on-surface-variant">
-            {transaction.category?.name ?? 'Uncategorized'} · {timeFormatted}
-          </p>
-        </div>
+      <div
+        className={cn(
+          'flex h-12 w-12 shrink-0 items-center justify-center',
+          transaction.category
+            ? getShapeForCategory(transaction.category.id)
+            : 'rounded-full'
+        )}
+        style={{
+          backgroundColor: transaction.category
+            ? `${transaction.category.color}25`
+            : 'var(--secondary)',
+        }}
+      >
+        {IconComponent ? (
+          <IconComponent
+            size={20}
+            style={{ color: transaction.category?.color }}
+          />
+        ) : (
+          <span className="text-sm text-muted-foreground">?</span>
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <p className="truncate text-base font-semibold text-foreground">
+          {transaction.note || transaction.category?.name || 'Transaction'}
+        </p>
+        <p className="text-xs text-on-surface-variant">
+          {transaction.category?.name ?? 'Uncategorized'} · {timeFormatted}
+        </p>
       </div>
 
       <p
         className={cn(
-          'font-heading text-xl font-extrabold',
+          'font-display text-lg font-semibold tabular-nums',
           transaction.type === 'income'
-            ? 'text-muted-foreground'
+            ? 'text-success'
             : 'text-foreground'
         )}
       >

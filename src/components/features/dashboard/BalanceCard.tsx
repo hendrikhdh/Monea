@@ -1,25 +1,29 @@
+import Link from 'next/link'
+import { ChevronRight } from 'lucide-react'
+import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
+
 interface BalanceCardProps {
   balance: number
 }
 
 export function BalanceCard({ balance }: BalanceCardProps) {
-  const formatted = new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-  }).format(balance)
-
   return (
-    <section className="relative overflow-hidden rounded-[3rem_1rem_4rem_3rem] bg-gradient-to-br from-primary to-primary-container p-10 text-primary-foreground shadow-xl">
-      {/* Decorative blur blob */}
-      <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-muted-foreground opacity-20 blur-3xl" />
-
-      <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-secondary">
-        Gesamtsaldo
-      </p>
-      <h1 className="mt-2 font-display text-5xl font-normal leading-tight">
-        {formatted}
-      </h1>
-    </section>
+    <Link
+      href="/portfolio"
+      className="group flex items-center justify-between rounded-2xl bg-surface-container px-6 py-5 transition-all active:scale-[0.98]"
+    >
+      <div>
+        <p className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+          Gesamtsaldo
+        </p>
+        <p className="mt-1 font-display text-2xl font-semibold text-foreground">
+          {formatCurrencyWithSymbol(balance)}
+        </p>
+      </div>
+      <ChevronRight
+        size={20}
+        className="text-muted-foreground transition-transform group-active:translate-x-0.5"
+      />
+    </Link>
   )
 }

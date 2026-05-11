@@ -85,7 +85,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
           {goal.name}
         </h3>
         <p className={cn(
-          'mt-1 text-sm font-medium',
+          'mt-1 font-display text-sm tabular-nums',
           hasImage ? 'text-white/70' : 'text-muted-foreground'
         )}>
           {format(goal.current_amount)} von {format(goal.target_amount)}

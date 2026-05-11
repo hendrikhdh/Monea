@@ -1,4 +1,4 @@
-import { ProgressRing } from '@/components/ui/ProgressRing'
+import { ChevronRight } from 'lucide-react'
 import type { Category } from '@/lib/types/database'
 import { ICON_MAP } from './iconMap'
 import { getShapeForCategory } from './organicShapes'
@@ -18,7 +18,7 @@ export function CategoryList({ categories, onEdit }: CategoryListProps) {
   if (categories.length === 0) {
     return (
       <p className="py-12 text-center text-sm text-muted-foreground">
-        Noch keine Kategorien. Erstelle deine erste unten.
+        Keine Kategorien für diesen Filter.
       </p>
     )
   }
@@ -86,15 +86,7 @@ function CategoryItem({
         </div>
       </div>
 
-      <ProgressRing
-        percentage={0}
-        size={48}
-        strokeWidth={5}
-        trackClassName="text-outline-variant/20"
-        progressClassName="text-muted-foreground"
-      >
-        <span className="text-[9px] font-bold text-muted-foreground">—</span>
-      </ProgressRing>
+      <ChevronRight size={20} className="shrink-0 text-muted-foreground" />
     </button>
   )
 }

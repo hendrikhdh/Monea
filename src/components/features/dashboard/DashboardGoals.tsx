@@ -15,7 +15,12 @@ export function DashboardGoals({ goals }: DashboardGoalsProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editGoal, setEditGoal] = useState<Goal | null>(null)
 
-  if (goals.length === 0) return null
+  const activeGoals = goals
+    .filter((g) => g.target_amount > 0 && g.current_amount > 0 && g.current_amount < g.target_amount)
+    .sort((a, b) => b.current_amount / b.target_amount - a.current_amount / a.target_amount)
+    .slice(0, 3)
+
+  if (activeGoals.length === 0) return null
 
   const handleEdit = (goal: Goal) => {
     setEditGoal(goal)
@@ -39,7 +44,7 @@ export function DashboardGoals({ goals }: DashboardGoalsProps) {
         </Link>
       </div>
       <div className="grid grid-cols-1 gap-4">
-        {goals.slice(0, 3).map((goal) => (
+        {activeGoals.map((goal) => (
           <GoalCard key={goal.id} goal={goal} onClick={() => handleEdit(goal)} />
         ))}
       </div>

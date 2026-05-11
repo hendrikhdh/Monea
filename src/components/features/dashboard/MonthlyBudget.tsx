@@ -1,27 +1,21 @@
-'use client'
-
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Sparkles, AlertTriangle } from 'lucide-react'
+import { ICON_MAP } from '@/components/features/categories/iconMap'
+import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
+import type { BudgetAtRisk } from '@/lib/supabase/budgets'
+import { cn } from '@/lib/utils'
 
 interface MonthlyBudgetProps {
-  spent: number
-  budget: number
+  atRisk: BudgetAtRisk[]
+  hasAnyBudget: boolean
 }
 
-export function MonthlyBudget({ spent, budget }: MonthlyBudgetProps) {
-  const remaining = Math.max(0, budget - spent)
-  const percentage = budget > 0 ? Math.round((remaining / budget) * 100) : 0
-  const circumference = 2 * Math.PI * 40
-  const offset = circumference - (percentage / 100) * circumference
-
-  const format = (v: number) =>
-    new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(v)
-
-  if (budget <= 0) {
+export function MonthlyBudget({ atRisk, hasAnyBudget }: MonthlyBudgetProps) {
+  if (!hasAnyBudget) {
     return (
       <Link
         href="/budgets"
-        className="flex items-center justify-between rounded-xl bg-surface-container p-8 transition-colors active:scale-[0.98]"
+        className="flex items-center justify-between rounded-xl bg-surface-container p-6 transition-colors active:scale-[0.98]"
       >
         <div>
           <h3 className="font-heading text-xl font-bold">Monatsbudget</h3>
@@ -34,54 +28,95 @@ export function MonthlyBudget({ spent, budget }: MonthlyBudgetProps) {
     )
   }
 
-  return (
-    <section className="relative flex items-center justify-between overflow-hidden rounded-xl bg-surface-container p-8">
-      <div className="flex-1">
-        <Link href="/budgets" className="group flex items-center gap-2">
-          <h3 className="font-heading text-xl font-bold">Monatsbudget</h3>
-          <ArrowRight
-            size={16}
-            className="text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100"
-          />
-        </Link>
-
-        <p className="text-sm font-medium text-on-surface-variant">
-          {format(remaining)} € von {format(budget)} € übrig
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {format(spent)} € ausgegeben
-        </p>
-
-        <div className="mt-4 flex gap-1">
-          <div
-            className="h-1.5 rounded-full bg-primary"
-            style={{ width: `${100 - percentage}%`, minWidth: 16 }}
-          />
-          <div
-            className="h-1.5 rounded-full bg-primary/20"
-            style={{ width: `${percentage}%`, minWidth: 8 }}
-          />
+  if (atRisk.length === 0) {
+    return (
+      <Link
+        href="/budgets"
+        className="flex items-center gap-4 rounded-xl bg-secondary-container/70 p-6 transition-all active:scale-[0.98]"
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-container">
+          <Sparkles size={20} className="text-on-secondary-container" />
         </div>
+        <div className="flex-1">
+          <h3 className="font-heading text-base font-bold text-secondary-foreground">
+            Alles im Plan
+          </h3>
+          <p className="mt-0.5 text-sm text-on-secondary-container">
+            Keine Budgetgrenze in Sicht
+          </p>
+        </div>
+      </Link>
+    )
+  }
+
+  return (
+    <Link href="/budgets" className="block space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <AlertTriangle size={16} className="text-destructive" />
+          <h3 className="font-heading text-base font-bold text-foreground">
+            Budgets nahe der Grenze
+          </h3>
+        </div>
+        <ArrowRight size={16} className="text-muted-foreground" />
       </div>
 
-      <div className="relative flex h-24 w-24 shrink-0 items-center justify-center">
-        <svg className="-rotate-90" width={96} height={96}>
-          <circle
-            cx={48} cy={48} r={40}
-            fill="transparent" stroke="currentColor"
-            strokeWidth={10} className="text-secondary"
-          />
-          <circle
-            cx={48} cy={48} r={40}
-            fill="transparent" stroke="currentColor"
-            strokeWidth={10} strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="text-primary"
-          />
-        </svg>
-        <span className="absolute font-display text-lg">{percentage}%</span>
+      <div className="space-y-2">
+        {atRisk.map(({ budget, spent, percentage }) => {
+          const Icon = ICON_MAP[budget.category.icon]
+          const limit = Number(budget.amount)
+          const isOver = percentage >= 100
+          const barWidth = Math.min(100, percentage)
+
+          return (
+            <div
+              key={budget.id}
+              className="rounded-xl bg-surface-container-low p-4"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
+                  style={{ backgroundColor: `${budget.category.color}20` }}
+                >
+                  {Icon && <Icon size={18} style={{ color: budget.category.color }} />}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {budget.category.name}
+                  </p>
+                  <p className="text-xs text-on-surface-variant tabular-nums">
+                    {formatCurrencyWithSymbol(spent)} von {formatCurrencyWithSymbol(limit)}
+                  </p>
+                </div>
+
+                <span
+                  className={cn(
+                    'font-display text-sm font-semibold tabular-nums',
+                    isOver ? 'text-destructive' : 'text-foreground'
+                  )}
+                >
+                  {percentage}%
+                </span>
+              </div>
+
+              <div className="mt-3 flex gap-0.5">
+                <div
+                  className={cn(
+                    'h-1.5 rounded-full',
+                    isOver ? 'bg-destructive' : 'bg-primary'
+                  )}
+                  style={{ width: `${barWidth}%`, minWidth: 4 }}
+                />
+                <div
+                  className="h-1.5 rounded-full bg-primary/15"
+                  style={{ width: `${100 - barWidth}%`, minWidth: 4 }}
+                />
+              </div>
+            </div>
+          )
+        })}
       </div>
-    </section>
+    </Link>
   )
 }

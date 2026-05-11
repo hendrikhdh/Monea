@@ -7,6 +7,7 @@ import { addGoal, editGoal, removeGoal } from '@/app/(app)/goals/actions'
 import { createClient } from '@/lib/supabase/client'
 import { getGoalImageUrl } from '@/lib/supabase/goalImage'
 import { resizeImage } from '@/lib/utils/resizeImage'
+import { randomId } from '@/lib/utils/randomId'
 import { ImageCropper } from './ImageCropper'
 import type { Goal } from '@/lib/types/database'
 import { cn } from '@/lib/utils'
@@ -75,7 +76,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('Not authenticated')
 
-      const path = `${user.id}/${crypto.randomUUID()}.jpg`
+      const path = `${user.id}/${randomId()}.jpg`
 
       const { error } = await supabase.storage
         .from('goal-images')

@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { removeTransaction } from '@/app/(app)/transactions/actions'
 import type { TransactionWithCategory } from '@/lib/types/database'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
+import { cn } from '@/lib/utils'
 
 interface TransactionListProps {
   transactions: TransactionWithCategory[]
@@ -62,7 +63,7 @@ function TransactionItem({ transaction }: { transaction: TransactionWithCategory
   return (
     <div className="flex items-center gap-4 rounded-xl bg-surface-container-low p-4">
       <div
-        className="flex h-12 w-12 items-center justify-center rounded-full"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
         style={{
           backgroundColor: transaction.category
             ? `${transaction.category.color}20`
@@ -79,8 +80,8 @@ function TransactionItem({ transaction }: { transaction: TransactionWithCategory
         )}
       </div>
 
-      <div className="flex-1">
-        <p className="font-semibold text-foreground">
+      <div className="flex-1 min-w-0">
+        <p className="truncate text-base font-semibold text-foreground">
           {transaction.note || transaction.category?.name || 'Transaction'}
         </p>
         <p className="text-xs text-on-surface-variant">
@@ -89,9 +90,12 @@ function TransactionItem({ transaction }: { transaction: TransactionWithCategory
         </p>
       </div>
 
-      <p className={`font-display font-semibold ${
-        transaction.type === 'income' ? 'text-success' : 'text-foreground'
-      }`}>
+      <p
+        className={cn(
+          'font-display text-lg font-semibold tabular-nums',
+          transaction.type === 'income' ? 'text-success' : 'text-foreground'
+        )}
+      >
         {formatted}
       </p>
 

@@ -3,35 +3,36 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, Receipt, BarChart3, Trophy } from 'lucide-react'
+import { ORGANIC_SHAPES } from '@/components/features/categories/organicShapes'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/transactions', label: 'Transaktionen', icon: Receipt },
-  { href: '/analytics', label: 'Analyse', icon: BarChart3 },
-  { href: '/goals', label: 'Ziele', icon: Trophy },
+  { href: '/', label: 'Dashboard', icon: LayoutDashboard, shape: ORGANIC_SHAPES[0] },
+  { href: '/transactions', label: 'Transaktionen', icon: Receipt, shape: ORGANIC_SHAPES[2] },
+  { href: '/analytics', label: 'Analyse', icon: BarChart3, shape: ORGANIC_SHAPES[5] },
+  { href: '/goals', label: 'Ziele', icon: Trophy, shape: ORGANIC_SHAPES[8] },
 ]
 
 export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-center justify-around rounded-t-[3rem] bg-background/70 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
-      {navItems.map(({ href, label, icon: Icon }) => {
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-end justify-around bg-background/70 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl">
+      {navItems.map(({ href, label, icon: Icon, shape }) => {
         const isActive = pathname === href
         return (
           <Link
             key={href}
             href={href}
+            aria-label={label}
             className={cn(
-              'flex min-h-[44px] flex-col items-center justify-center gap-0.5 rounded-full px-3 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all duration-300 active:scale-90',
+              '-mb-3 flex h-14 w-14 items-center justify-center transition-[background-color,color,transform] duration-300 active:scale-90',
               isActive
-                ? 'bg-secondary text-secondary-foreground'
-                : 'text-muted-foreground hover:scale-110'
+                ? cn('bg-secondary text-secondary-foreground', shape)
+                : 'rounded-full text-muted-foreground hover:scale-110'
             )}
           >
-            <Icon size={22} strokeWidth={isActive ? 2 : 1.5} />
-            <span>{label}</span>
+            <Icon size={26} strokeWidth={isActive ? 2 : 1.5} />
           </Link>
         )
       })}

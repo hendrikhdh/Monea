@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(powershell -Command \"Remove-Item -Path 'C:/Users/hendr/Monea/monea-setup' -Recurse -Force\")"
-    ]
-  }
-}

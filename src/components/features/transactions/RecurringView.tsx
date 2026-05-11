@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import { AnimatedSection } from '@/components/ui/animated-section'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
@@ -19,14 +18,19 @@ export function RecurringView({ items, categories }: RecurringViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-4 px-6">
-      <AnimatedSection delay={0}>
-        <TransactionTabs active="recurring" />
-      </AnimatedSection>
+    <div className="mx-auto w-full max-w-2xl px-6 pb-24">
+      {/* Sticky controls: Tabs only (recurring view has no search/filters) */}
+      <div className="sticky top-20 z-30 -mx-6 -mt-4 bg-background/70 px-6 pb-4 pt-7 backdrop-blur-xl">
+        <AnimatedSection delay={0}>
+          <TransactionTabs active="recurring" />
+        </AnimatedSection>
+      </div>
 
-      <AnimatedSection delay={0.05}>
-        <RecurringList items={items} />
-      </AnimatedSection>
+      <div className="pt-6">
+        <AnimatedSection delay={0.05}>
+          <RecurringList items={items} />
+        </AnimatedSection>
+      </div>
 
       {/* FAB */}
       <button

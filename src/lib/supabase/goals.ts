@@ -1,5 +1,6 @@
 import { createClient } from './server'
 import type { Goal } from '@/lib/types/database'
+import { randomId } from '@/lib/utils/randomId'
 
 export async function getGoals(): Promise<Goal[]> {
   const supabase = await createClient()
@@ -63,7 +64,7 @@ export async function uploadGoalImage(file: File): Promise<string> {
   if (!user) throw new Error('Not authenticated')
 
   const ext = file.name.split('.').pop()
-  const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+  const path = `${user.id}/${randomId()}.${ext}`
 
   const { error } = await supabase.storage
     .from('goal-images')

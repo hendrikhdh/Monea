@@ -5,7 +5,9 @@ import { Pause, Play, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
 import { toggleRecurring, removeRecurring } from '@/app/(app)/transactions/actions'
+import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
 import type { RecurringTransactionWithCategory } from '@/lib/types/database'
+import { cn } from '@/lib/utils'
 
 const INTERVAL_LABELS: Record<string, string> = {
   weekly: 'Wöchentlich',
@@ -29,7 +31,7 @@ export function RecurringList({ items }: RecurringListProps) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {items.map((item) => (
         <RecurringRow key={item.id} item={item} />
       ))}
@@ -40,9 +42,8 @@ export function RecurringList({ items }: RecurringListProps) {
 function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
   const Icon = item.category ? ICON_MAP[item.category.icon] : null
   const color = item.category?.color ?? '#888'
-
-  const format = (v: number) =>
-    new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2 }).format(v)
+  const amount = Number(item.amount)
+  const formatted = `${item.type === 'income' ? '+' : '-'}${formatCurrencyWithSymbol(amount)}`
 
   const [, toggleAction] = useActionState(
     async (_prev: unknown, formData: FormData) => {
@@ -64,32 +65,37 @@ function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
   )
 
   return (
-    <div className={`flex items-center gap-3 rounded-xl bg-surface-container-low p-4 ${!item.is_active ? 'opacity-50' : ''}`}>
+    <div className={cn(
+      'flex items-center gap-4 rounded-xl bg-surface-container-low p-4',
+      !item.is_active && 'opacity-50'
+    )}>
       <div
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: color + '20' }}
       >
-        {Icon && <Icon size={18} style={{ color }} />}
+        {Icon && <Icon size={20} style={{ color }} />}
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-baseline justify-between">
-          <span className="truncate text-sm font-medium">
-            {item.category?.name ?? 'Ohne Kategorie'}
-          </span>
-          <span className={`text-sm font-semibold ${item.type === 'income' ? 'text-primary' : ''}`}>
-            {item.type === 'income' ? '+' : '-'}{format(Number(item.amount))} €
-          </span>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>{INTERVAL_LABELS[item.interval]}</span>
-          <span>·</span>
-          <span>Nächste: {new Date(item.next_due).toLocaleDateString('de-DE')}</span>
-        </div>
+        <p className="truncate text-base font-semibold text-foreground">
+          {item.category?.name ?? 'Ohne Kategorie'}
+        </p>
+        <p className="text-xs text-on-surface-variant">
+          {INTERVAL_LABELS[item.interval]} · {new Date(item.next_due).toLocaleDateString('de-DE')}
+        </p>
         {item.note && (
           <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.note}</p>
         )}
       </div>
+
+      <p
+        className={cn(
+          'font-display text-lg font-semibold tabular-nums',
+          item.type === 'income' ? 'text-success' : 'text-foreground'
+        )}
+      >
+        {formatted}
+      </p>
 
       <div className="flex items-center gap-1">
         <form action={toggleAction}>

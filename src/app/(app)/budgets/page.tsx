@@ -1,26 +1,26 @@
-import { getBudgetsForMonth } from '@/lib/supabase/budgets'
+import { getBudgets } from '@/lib/supabase/budgets'
 import { getCategories } from '@/lib/supabase/categories'
-import { getMonthlyStats } from '@/lib/supabase/transactions'
-import { BudgetsShell } from '@/components/features/budgets/BudgetsShell'
+import { getSpendingByCategory } from '@/lib/supabase/transactions'
+import { BudgetsView } from '@/components/features/budgets/BudgetsView'
 
 export default async function BudgetsPage() {
   const now = new Date()
   const year = now.getFullYear()
   const month = now.getMonth() + 1
 
-  const [budgets, categories, stats] = await Promise.all([
-    getBudgetsForMonth(year, month),
+  const [budgets, categories, spentMap] = await Promise.all([
+    getBudgets(),
     getCategories(),
-    getMonthlyStats(year, month),
+    getSpendingByCategory(year, month),
   ])
 
+  const spentByCategory: Record<string, number> = Object.fromEntries(spentMap)
+
   return (
-    <BudgetsShell
-      initialYear={year}
-      initialMonth={month}
+    <BudgetsView
       budgets={budgets}
       categories={categories}
-      spent={stats.expenses}
+      spentByCategory={spentByCategory}
     />
   )
 }

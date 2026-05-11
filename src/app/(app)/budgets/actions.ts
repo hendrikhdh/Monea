@@ -7,8 +7,6 @@ import { upsertBudget, deleteBudget } from '@/lib/supabase/budgets'
 export async function saveBudget(formData: FormData) {
   const result = budgetSchema.safeParse({
     category_id: formData.get('category_id'),
-    year: formData.get('year'),
-    month: formData.get('month'),
     amount: formData.get('amount'),
   })
 

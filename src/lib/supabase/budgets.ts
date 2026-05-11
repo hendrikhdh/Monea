@@ -1,34 +1,34 @@
 import { createClient } from './server'
+import { getSpendingByCategory } from './transactions'
 import type { Budget, BudgetWithCategory } from '@/lib/types/database'
 
-export async function getBudgetsForMonth(
-  year: number,
-  month: number
-): Promise<BudgetWithCategory[]> {
+export interface BudgetAtRisk {
+  budget: BudgetWithCategory
+  spent: number
+  percentage: number
+}
+
+export async function getBudgets(): Promise<BudgetWithCategory[]> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('budgets')
     .select('*, category:categories(*)')
-    .eq('year', year)
-    .eq('month', month)
     .order('amount', { ascending: false })
 
   if (error) throw error
-  return (data ?? []) as BudgetWithCategory[]
+  return (data ?? []).map((b) => ({
+    ...b,
+    amount: Number(b.amount),
+  })) as BudgetWithCategory[]
 }
 
-export async function getTotalBudgetForMonth(
-  year: number,
-  month: number
-): Promise<number> {
-  const budgets = await getBudgetsForMonth(year, month)
+export async function getTotalBudget(): Promise<number> {
+  const budgets = await getBudgets()
   return budgets.reduce((sum, b) => sum + Number(b.amount), 0)
 }
 
 export async function upsertBudget(budget: {
   category_id: string
-  year: number
-  month: number
   amount: number
 }): Promise<Budget> {
   const supabase = await createClient()
@@ -39,7 +39,7 @@ export async function upsertBudget(budget: {
     .from('budgets')
     .upsert(
       { ...budget, user_id: user.id },
-      { onConflict: 'user_id,category_id,year,month' }
+      { onConflict: 'user_id,category_id' }
     )
     .select()
     .single()
@@ -52,4 +52,33 @@ export async function deleteBudget(id: string): Promise<void> {
   const supabase = await createClient()
   const { error } = await supabase.from('budgets').delete().eq('id', id)
   if (error) throw error
+}
+
+export async function getBudgetsAtRisk(
+  year: number,
+  month: number,
+  threshold = 0.8
+): Promise<BudgetAtRisk[]> {
+  const [budgets, spentMap] = await Promise.all([
+    getBudgets(),
+    getSpendingByCategory(year, month),
+  ])
+
+  const result: BudgetAtRisk[] = []
+  for (const budget of budgets) {
+    const limit = Number(budget.amount)
+    if (limit <= 0) continue
+    const spent = spentMap.get(budget.category_id) ?? 0
+    const ratio = spent / limit
+    if (ratio >= threshold) {
+      result.push({
+        budget,
+        spent,
+        percentage: Math.round(ratio * 100),
+      })
+    }
+  }
+
+  result.sort((a, b) => b.percentage - a.percentage)
+  return result
 }

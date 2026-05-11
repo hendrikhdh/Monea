@@ -27,8 +27,6 @@ export interface Budget {
   id: string
   user_id: string
   category_id: string
-  year: number
-  month: number
   amount: number
   created_at: string
 }
@@ -63,5 +61,28 @@ export interface Goal {
   current_amount: number
   image_path: string | null
   image_aspect: string | null
+  created_at: string
+}
+
+export type PortfolioAccountType = 'savings' | 'brokerage' | 'cash' | 'other'
+
+export interface PortfolioAccount {
+  id: string
+  user_id: string
+  name: string
+  type: PortfolioAccountType
+  current_amount: number
+  icon: string
+  color: string
+  created_at: string
+  updated_at: string
+}
+
+export interface MonthlyBalanceSnapshot {
+  id: string
+  user_id: string
+  year: number
+  month: number
+  frozen_amount: number
   created_at: string
 }

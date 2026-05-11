@@ -26,17 +26,17 @@ export function MotivationCard() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] bg-surface-container-low px-7 py-8">
+    <section className="relative overflow-hidden rounded-[2rem] bg-secondary-container px-7 py-8">
       <div
         className={cn(
           'transition-opacity duration-200',
           isAnimating ? 'opacity-0' : 'opacity-100'
         )}
       >
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-surface-variant">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-on-secondary-container">
           Daily Motivation
         </p>
-        <p className="mt-4 font-display text-xl leading-relaxed text-foreground">
+        <p className="mt-4 font-display text-xl leading-relaxed text-secondary-foreground">
           &ldquo;{MOTIVATION_QUOTES[index]}&rdquo;
         </p>
       </div>
@@ -44,7 +44,7 @@ export function MotivationCard() {
       <button
         type="button"
         onClick={refresh}
-        className="absolute bottom-5 right-5 flex h-11 w-11 items-center justify-center rounded-full bg-background/60 text-on-surface-variant transition-all active:scale-90"
+        className="absolute bottom-5 right-5 flex h-11 w-11 items-center justify-center rounded-full bg-background/70 text-on-secondary-container transition-all active:scale-90"
         style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
         aria-label="New quote"
       >

@@ -1,9 +1,10 @@
-import { getTotalBalance, getMonthlyStats, getTransactions } from '@/lib/supabase/transactions'
+import { getMonthlyStats, getTransactions } from '@/lib/supabase/transactions'
+import { computeTotalPortfolio } from '@/lib/supabase/portfolio'
 import { getGoals } from '@/lib/supabase/goals'
-import { getTotalBudgetForMonth } from '@/lib/supabase/budgets'
+import { getBudgets, getBudgetsAtRisk } from '@/lib/supabase/budgets'
 import { processRecurringTransactions } from '@/lib/supabase/recurring'
 import { BalanceCard } from '@/components/features/dashboard/BalanceCard'
-import { MonthlyOverview } from '@/components/features/dashboard/MonthlyOverview'
+import { MonthlyView } from '@/components/features/dashboard/MonthlyView'
 import { MonthlyBudget } from '@/components/features/dashboard/MonthlyBudget'
 import { RecentTransactions } from '@/components/features/dashboard/RecentTransactions'
 import { DashboardGoals } from '@/components/features/dashboard/DashboardGoals'
@@ -18,27 +19,28 @@ export default async function DashboardPage() {
   // Process any due recurring transactions before loading data
   await processRecurringTransactions().catch(() => {})
 
-  const [balance, monthlyStats, recentTransactions, goals, totalBudget] = await Promise.all([
-    getTotalBalance(),
+  const [balance, monthlyStats, recentTransactions, goals, atRiskBudgets, allBudgets] = await Promise.all([
+    computeTotalPortfolio(),
     getMonthlyStats(currentYear, currentMonth),
     getTransactions(5),
     getGoals(),
-    getTotalBudgetForMonth(currentYear, currentMonth),
+    getBudgetsAtRisk(currentYear, currentMonth),
+    getBudgets(),
   ])
 
   return (
     <DashboardShell
       motivationCard={<MotivationCard />}
-      balanceCard={<BalanceCard balance={balance} />}
-      monthlyOverview={
-        <MonthlyOverview
+      monthlyView={
+        <MonthlyView
           initialYear={currentYear}
           initialMonth={currentMonth}
           initialIncome={monthlyStats.income}
           initialExpenses={monthlyStats.expenses}
         />
       }
-      monthlyBudget={<MonthlyBudget spent={monthlyStats.expenses} budget={totalBudget} />}
+      balanceCard={<BalanceCard balance={balance} />}
+      monthlyBudget={<MonthlyBudget atRisk={atRiskBudgets} hasAnyBudget={allBudgets.length > 0} />}
       goals={<DashboardGoals goals={goals} />}
       recentTransactions={<RecentTransactions transactions={recentTransactions} />}
     />
