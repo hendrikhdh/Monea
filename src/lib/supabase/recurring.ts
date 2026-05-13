@@ -77,7 +77,24 @@ function advanceDate(date: Date, interval: string): Date {
 
 export async function processRecurringTransactions(): Promise<number> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return 0
+
   const today = new Date().toISOString().slice(0, 10)
+
+  // Throttle: skip if we already ran today for this user
+  const { data: meta } = await supabase
+    .from('user_meta')
+    .select('last_recurring_processed_at')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (meta?.last_recurring_processed_at) {
+    const lastRunDay = new Date(meta.last_recurring_processed_at)
+      .toISOString()
+      .slice(0, 10)
+    if (lastRunDay === today) return 0
+  }
 
   const { data: dueItems, error } = await supabase
     .from('recurring_transactions')
@@ -86,7 +103,14 @@ export async function processRecurringTransactions(): Promise<number> {
     .lte('next_due', today)
 
   if (error) throw error
-  if (!dueItems || dueItems.length === 0) return 0
+
+  if (!dueItems || dueItems.length === 0) {
+    // Mark throttle even when nothing was due, so subsequent reloads skip the lookup
+    await supabase
+      .from('user_meta')
+      .upsert({ user_id: user.id, last_recurring_processed_at: new Date().toISOString() })
+    return 0
+  }
 
   let created = 0
 
@@ -125,6 +149,11 @@ export async function processRecurringTransactions(): Promise<number> {
       .update({ next_due: nextDue.toISOString().slice(0, 10) })
       .eq('id', item.id)
   }
+
+  // Record successful run to throttle future calls
+  await supabase
+    .from('user_meta')
+    .upsert({ user_id: user.id, last_recurring_processed_at: new Date().toISOString() })
 
   return created
 }

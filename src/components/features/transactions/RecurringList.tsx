@@ -1,9 +1,10 @@
 'use client'
 
 import { useActionState } from 'react'
-import { Pause, Play, Trash2 } from 'lucide-react'
+import { Pause, Play, Trash2, Repeat } from 'lucide-react'
 import { toast } from 'sonner'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
+import { EmptyState } from '@/components/ui/empty-state'
 import { toggleRecurring, removeRecurring } from '@/app/(app)/transactions/actions'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
 import type { RecurringTransactionWithCategory } from '@/lib/types/database'
@@ -22,11 +23,12 @@ interface RecurringListProps {
 export function RecurringList({ items }: RecurringListProps) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center">
-        <p className="text-sm text-muted-foreground">
-          Noch keine wiederkehrenden Transaktionen
-        </p>
-      </div>
+      <EmptyState
+        icon={Repeat}
+        title="Noch keine wiederkehrenden Transaktionen"
+        description="Lege Abos, Miete oder dein Gehalt einmal an — Monéa bucht sie automatisch jeden Monat."
+        variant="feature"
+      />
     )
   }
 
@@ -103,18 +105,20 @@ function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
           <input type="hidden" name="is_active" value={String(item.is_active)} />
           <button
             type="submit"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground active:scale-90"
+            aria-label={item.is_active ? 'Pausieren' : 'Wieder aktivieren'}
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors active:scale-90 active:bg-surface-container"
           >
-            {item.is_active ? <Pause size={14} /> : <Play size={14} />}
+            {item.is_active ? <Pause size={18} /> : <Play size={18} />}
           </button>
         </form>
         <form action={deleteAction}>
           <input type="hidden" name="id" value={item.id} />
           <button
             type="submit"
-            className="flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground hover:text-destructive active:scale-90"
+            aria-label="Löschen"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-destructive active:scale-90 active:bg-destructive/10 active:text-destructive"
           >
-            <Trash2 size={14} />
+            <Trash2 size={18} />
           </button>
         </form>
       </div>

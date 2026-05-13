@@ -1,5 +1,6 @@
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, SearchX } from 'lucide-react'
 import type { Category } from '@/lib/types/database'
+import { EmptyState } from '@/components/ui/empty-state'
 import { ICON_MAP } from './iconMap'
 import { getShapeForCategory } from './organicShapes'
 import { cn } from '@/lib/utils'
@@ -17,9 +18,11 @@ interface CategoryListProps {
 export function CategoryList({ categories, onEdit }: CategoryListProps) {
   if (categories.length === 0) {
     return (
-      <p className="py-12 text-center text-sm text-muted-foreground">
-        Keine Kategorien für diesen Filter.
-      </p>
+      <EmptyState
+        icon={SearchX}
+        title="Keine Kategorien"
+        description="Für den aktuellen Filter sind keine Kategorien hinterlegt."
+      />
     )
   }
 

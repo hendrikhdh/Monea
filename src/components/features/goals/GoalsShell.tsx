@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Sparkles } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { AnimatedSection } from '@/components/ui/animated-section'
+import { EmptyState } from '@/components/ui/empty-state'
 import { GoalCard } from './GoalCard'
 import { AddGoalForm } from './AddGoalForm'
 import type { Goal } from '@/lib/types/database'
@@ -43,9 +44,13 @@ export function GoalsShell({ goals }: GoalsShellProps) {
 
       {goals.length === 0 ? (
         <AnimatedSection delay={0.1}>
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            Noch keine Sparziele. Erstelle dein erstes!
-          </p>
+          <EmptyState
+            icon={Sparkles}
+            title="Noch keine Sparziele"
+            description="Setze dir ein Ziel — vom Wochenende-Trip bis zur ersten eigenen Wohnung."
+            cta={{ label: 'Sparziel anlegen', onClick: handleNew }}
+            variant="feature"
+          />
         </AnimatedSection>
       ) : (
         <div className="grid grid-cols-1 gap-6">

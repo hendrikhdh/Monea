@@ -128,7 +128,7 @@ export function MonthlyView({
               <p className="font-sans text-xs font-medium uppercase tracking-[0.2em] text-secondary">
                 Monatssaldo
               </p>
-              <h1 className="mt-2 font-display text-5xl font-normal leading-tight">
+              <h1 className="mt-2 font-display text-5xl font-normal leading-tight tabular-nums">
                 {balancePositive ? '+' : ''}{formatCurrencyShort(balance)} €
               </h1>
             </div>
@@ -148,7 +148,7 @@ export function MonthlyView({
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Einnahmen
           </p>
-          <p className="mt-1 font-display text-xl text-foreground">
+          <p className="mt-1 font-display text-xl tabular-nums text-foreground">
             +{formatCurrency(income)}
           </p>
         </Link>
@@ -163,7 +163,7 @@ export function MonthlyView({
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             Ausgaben
           </p>
-          <p className="mt-1 font-display text-xl text-foreground">
+          <p className="mt-1 font-display text-xl tabular-nums text-foreground">
             -{formatCurrency(expenses)}
           </p>
         </Link>

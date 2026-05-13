@@ -1,13 +1,14 @@
 'use client'
 
 import { useActionState, useState, useEffect, useRef } from 'react'
-import { Check, Trash2, ImagePlus, X } from 'lucide-react'
+import { Check, Trash2, ImagePlus, X, RotateCw } from 'lucide-react'
 import { toast } from 'sonner'
 import { addGoal, editGoal, removeGoal } from '@/app/(app)/goals/actions'
 import { createClient } from '@/lib/supabase/client'
 import { getGoalImageUrl } from '@/lib/supabase/goalImage'
 import { resizeImage } from '@/lib/utils/resizeImage'
 import { randomId } from '@/lib/utils/randomId'
+import { MAX_GOAL_AMOUNT } from '@/lib/validations/goal.schema'
 import { ImageCropper } from './ImageCropper'
 import type { Goal } from '@/lib/types/database'
 import { cn } from '@/lib/utils'
@@ -29,6 +30,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     goal?.image_path ? getGoalImageUrl(goal.image_path) : null
   )
+  const [failedUpload, setFailedUpload] = useState<{ blob: Blob; aspect: string } | null>(null)
   // Cropper state
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -70,6 +72,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
     setPreviewUrl(URL.createObjectURL(blob))
     setImageAspect(aspect)
     setUploading(true)
+    setFailedUpload(null)
 
     try {
       const supabase = createClient()
@@ -87,12 +90,15 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
       toast.success('Bild hochgeladen!')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Upload fehlgeschlagen.')
-      setPreviewUrl(goal?.image_path ? getGoalImageUrl(goal.image_path) : null)
-      setImagePath(goal?.image_path ?? null)
-      setImageAspect(goal?.image_aspect ?? '16:9')
+      // Keep preview visible so the user can retry without re-cropping
+      setFailedUpload({ blob, aspect })
     } finally {
       setUploading(false)
     }
+  }
+
+  const handleRetryUpload = () => {
+    if (failedUpload) handleCropDone(failedUpload.blob, failedUpload.aspect)
   }
 
   const handleCropCancel = () => {
@@ -104,6 +110,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
     setImagePath(null)
     setPreviewUrl(null)
     setCropSrc(null)
+    setFailedUpload(null)
     if (fileRef.current) fileRef.current.value = ''
   }
 
@@ -188,13 +195,29 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
             <button
               type="button"
               onClick={removeImage}
-              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white transition-all active:scale-90"
+              aria-label="Bild entfernen"
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-black/50 text-white transition-all active:scale-90"
             >
               <X size={16} />
             </button>
             {uploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                 <span className="text-sm font-semibold text-white">Uploading…</span>
+              </div>
+            )}
+            {failedUpload && !uploading && (
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-black/60 px-4 py-3 backdrop-blur-sm">
+                <span className="text-xs font-semibold text-white">
+                  Upload fehlgeschlagen
+                </span>
+                <button
+                  type="button"
+                  onClick={handleRetryUpload}
+                  className="flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-bold text-foreground transition-all active:scale-95"
+                >
+                  <RotateCw size={14} />
+                  Erneut versuchen
+                </button>
               </div>
             )}
           </div>
@@ -232,12 +255,16 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
             type="number"
             step="1"
             min="1"
+            max={MAX_GOAL_AMOUNT}
             placeholder="5.000"
             className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
             required
             disabled={pending}
             value={target}
-            onChange={(e) => setTarget(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              if (next === '' || Number(next) <= MAX_GOAL_AMOUNT) setTarget(next)
+            }}
           />
         </div>
         <div className="flex-1">
@@ -249,14 +276,24 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
             type="number"
             step="1"
             min="0"
+            max={MAX_GOAL_AMOUNT}
             placeholder="0"
             className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
             disabled={pending}
             value={current}
-            onChange={(e) => setCurrent(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value
+              if (next === '' || Number(next) <= MAX_GOAL_AMOUNT) setCurrent(next)
+            }}
           />
         </div>
       </div>
+
+      {target && current && Number(current) > Number(target) && (
+        <p className="text-sm text-destructive">
+          Gespart kann nicht größer als das Ziel sein.
+        </p>
+      )}
 
       {state?.error && (
         <p className="text-sm text-destructive">{state.error}</p>
@@ -276,7 +313,13 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
         )}
         <button
           type="submit"
-          disabled={pending || uploading || !name.trim() || !target}
+          disabled={
+            pending ||
+            uploading ||
+            !name.trim() ||
+            !target ||
+            (!!current && Number(current) > Number(target))
+          }
           className={cn(
             'flex h-14 flex-1 items-center justify-center gap-3 rounded-full font-heading text-lg font-bold tracking-wide shadow-[0_15px_30px_rgba(62,39,35,0.2)] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:shadow-none',
             'bg-primary-container text-primary-foreground'

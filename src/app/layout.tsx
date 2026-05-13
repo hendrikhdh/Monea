@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Plus_Jakarta_Sans, Be_Vietnam_Pro, Fraunces } from 'next/font/google'
 import { Toaster } from 'sonner'
+import { RegisterServiceWorker } from '@/components/layout/RegisterServiceWorker'
+import { AppleSplashScreens } from '@/components/layout/AppleSplashScreens'
 import './globals.css'
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -49,9 +51,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de" suppressHydrationWarning className={`${plusJakarta.variable} ${beVietnam.variable} ${fraunces.variable} h-full antialiased`}>
+      <head>
+        <AppleSplashScreens />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
         <Toaster position="top-center" richColors />
+        <RegisterServiceWorker />
       </body>
     </html>
   )

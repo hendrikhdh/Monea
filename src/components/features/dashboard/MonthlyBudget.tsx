@@ -15,7 +15,7 @@ export function MonthlyBudget({ atRisk, hasAnyBudget }: MonthlyBudgetProps) {
     return (
       <Link
         href="/budgets"
-        className="flex items-center justify-between rounded-xl bg-surface-container p-6 transition-colors active:scale-[0.98]"
+        className="flex items-center justify-between rounded-[2.5rem_1.25rem_3rem_1.75rem] bg-surface-container p-6 transition-colors active:scale-[0.98]"
       >
         <div>
           <h3 className="font-heading text-xl font-bold">Monatsbudget</h3>
@@ -32,7 +32,7 @@ export function MonthlyBudget({ atRisk, hasAnyBudget }: MonthlyBudgetProps) {
     return (
       <Link
         href="/budgets"
-        className="flex items-center gap-4 rounded-xl bg-secondary-container/70 p-6 transition-all active:scale-[0.98]"
+        className="flex items-center gap-4 rounded-[2.5rem_1.25rem_3rem_1.75rem] bg-secondary-container/70 p-6 transition-all active:scale-[0.98]"
       >
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-secondary-container">
           <Sparkles size={20} className="text-on-secondary-container" />

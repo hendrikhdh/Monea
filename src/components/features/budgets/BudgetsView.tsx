@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Plus, ChevronLeft } from 'lucide-react'
+import { Plus, ChevronLeft, PiggyBank } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { BudgetCard } from './BudgetCard'
 import { AddBudgetForm } from './AddBudgetForm'
+import { EmptyState } from '@/components/ui/empty-state'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
 import type { BudgetWithCategory, Category } from '@/lib/types/database'
 
@@ -74,9 +75,13 @@ export function BudgetsView({ budgets, categories, spentByCategory }: BudgetsVie
       {/* Budget list */}
       <div className="pt-6">
         {budgets.length === 0 ? (
-          <p className="rounded-xl bg-surface-container-low p-8 text-center text-sm text-muted-foreground">
-            Noch keine Budgets festgelegt. Tippe auf <span className="font-bold">+</span>, um dein erstes Budget anzulegen.
-          </p>
+          <EmptyState
+            icon={PiggyBank}
+            title="Noch keine Budgets festgelegt"
+            description="Lege Monatsgrenzen pro Kategorie fest, um deine Ausgaben im Blick zu behalten."
+            cta={{ label: 'Budget anlegen', onClick: handleNew }}
+            variant="feature"
+          />
         ) : (
           <div className="space-y-4">
             {budgets.map((budget, i) => (
@@ -106,6 +111,7 @@ export function BudgetsView({ budgets, categories, spentByCategory }: BudgetsVie
           budget={editBudget}
           categories={categories}
           existingCategoryIds={existingCategoryIds}
+          spent={editBudget ? spentByCategory[editBudget.category_id] ?? 0 : undefined}
           onDone={handleClose}
         />
       </BottomSheet>

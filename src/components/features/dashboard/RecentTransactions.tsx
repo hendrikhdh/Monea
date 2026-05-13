@@ -1,8 +1,10 @@
 'use client'
 
 import Link from 'next/link'
+import { Receipt } from 'lucide-react'
 import type { TransactionWithCategory } from '@/lib/types/database'
 import { TransactionCard, BLOB_SHAPES } from '@/components/features/transactions/TransactionGroup'
+import { EmptyState } from '@/components/ui/empty-state'
 
 interface RecentTransactionsProps {
   transactions: TransactionWithCategory[]
@@ -11,8 +13,8 @@ interface RecentTransactionsProps {
 export function RecentTransactions({ transactions }: RecentTransactionsProps) {
   return (
     <section>
-      <div className="mb-6 flex items-end justify-between">
-        <h3 className="font-heading text-2xl font-bold">Letzte Transaktionen</h3>
+      <div className="mb-4 flex items-end justify-between">
+        <h2 className="font-heading text-xl font-bold text-foreground">Letzte Transaktionen</h2>
         <Link
           href="/transactions"
           className="text-xs font-semibold uppercase tracking-widest text-muted-foreground"
@@ -22,9 +24,11 @@ export function RecentTransactions({ transactions }: RecentTransactionsProps) {
       </div>
 
       {transactions.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          Noch keine Transaktionen.
-        </p>
+        <EmptyState
+          icon={Receipt}
+          title="Noch keine Transaktionen"
+          description="Sobald du Einnahmen oder Ausgaben erfasst, erscheinen sie hier."
+        />
       ) : (
         <div className="space-y-4">
           {transactions.map((tx, i) => (

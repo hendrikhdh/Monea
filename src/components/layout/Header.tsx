@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell } from 'lucide-react'
 import { useAuth } from '@/lib/hooks/useAuth'
 
 export function Header() {
@@ -16,7 +15,8 @@ export function Header() {
       <div className="flex items-center gap-3">
         <Link
           href="/settings"
-          className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary font-heading text-sm font-bold text-secondary-foreground transition-transform active:scale-95"
+          aria-label="Einstellungen"
+          className="avatar-gradient flex h-10 w-10 items-center justify-center rounded-full font-heading text-sm font-bold text-secondary-foreground shadow-sm transition-transform active:scale-95"
         >
           {initials}
         </Link>
@@ -24,9 +24,6 @@ export function Header() {
           Monéa
         </span>
       </div>
-      <button className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-accent active:scale-95">
-        <Bell size={22} strokeWidth={1.5} className="text-foreground" />
-      </button>
     </header>
   )
 }

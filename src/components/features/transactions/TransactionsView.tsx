@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Receipt, SearchX } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { AnimatedSection } from '@/components/ui/animated-section'
+import { EmptyState } from '@/components/ui/empty-state'
 import { TransactionTabs } from './TransactionTabs'
 import { TransactionSearch } from './TransactionSearch'
 import { TransactionFilters } from './TransactionFilters'
@@ -114,9 +115,21 @@ export function TransactionsView({ transactions, categories, initialFilter = 'al
       {/* List */}
       <div className="space-y-4 pt-6">
         {groups.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted-foreground">
-            Keine Transaktionen gefunden.
-          </p>
+          transactions.length === 0 ? (
+            <EmptyState
+              icon={Receipt}
+              title="Noch keine Transaktionen"
+              description="Erfasse deine erste Einnahme oder Ausgabe — alles, was du eintippst, fließt automatisch ins Dashboard."
+              cta={{ label: 'Transaktion hinzufügen', onClick: handleNew }}
+              variant="feature"
+            />
+          ) : (
+            <EmptyState
+              icon={SearchX}
+              title="Keine Treffer"
+              description="Für deinen Filter oder die Suche gibt es keine Transaktionen."
+            />
+          )
         ) : (
           groups.map((group) => (
             <AnimatedSection key={group.label} delay={0.1}>

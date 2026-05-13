@@ -35,7 +35,8 @@ export function RecurringView({ items, categories }: RecurringViewProps) {
       {/* FAB */}
       <button
         onClick={() => setSheetOpen(true)}
-        className="fixed bottom-28 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all active:scale-90"
+        aria-label="Wiederkehrende Transaktion hinzufügen"
+        className="fixed bottom-28 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-primary-foreground shadow-lg transition-all active:scale-90"
       >
         <Plus size={24} />
       </button>

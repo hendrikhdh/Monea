@@ -32,7 +32,7 @@ export function BudgetCard({ budget, spent, blobIndex, onClick }: BudgetCardProp
       type="button"
       onClick={onClick}
       className={cn(
-        'flex w-full flex-col gap-4 bg-surface-container-low p-6 text-left transition-all duration-300 active:scale-[0.98] hover:bg-surface-container',
+        'flex w-full flex-col gap-4 bg-surface-container-low p-6 text-left transition-all duration-300 active:scale-[0.98] active:bg-surface-container',
         BLOB_SHAPES[blobIndex]
       )}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
@@ -53,7 +53,7 @@ export function BudgetCard({ budget, spent, blobIndex, onClick }: BudgetCardProp
             {budget.category.name}
           </p>
           <p className="font-display text-xs tabular-nums text-on-surface-variant">
-            von {formatCurrencyWithSymbol(limit)}
+            {formatCurrencyWithSymbol(spent)} von {formatCurrencyWithSymbol(limit)}
           </p>
         </div>
 

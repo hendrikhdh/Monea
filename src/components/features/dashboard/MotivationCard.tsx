@@ -26,7 +26,7 @@ export function MotivationCard() {
   }, [])
 
   return (
-    <section className="relative overflow-hidden rounded-[2rem] bg-secondary-container px-7 py-8">
+    <section className="relative overflow-hidden rounded-[2.5rem_1.25rem_3rem_1.75rem] bg-secondary-container px-7 py-8">
       <div
         className={cn(
           'transition-opacity duration-200',

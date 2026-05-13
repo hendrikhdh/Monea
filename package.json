@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-splash": "pwa-asset-generator public/icons/icon-512x512.png public/icons/splash --background \"#271310\" --splash-only --portrait-only --type png --padding \"30%\" --opaque false"
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
@@ -43,6 +44,7 @@
     "jsdom": "^29.0.1",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "pwa-asset-generator": "^8.1.4",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.2"

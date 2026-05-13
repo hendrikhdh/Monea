@@ -34,7 +34,7 @@ export default async function PortfolioPage() {
           <h1 className="font-heading text-2xl font-bold text-foreground">Portfolio</h1>
         </div>
 
-        <section className="rounded-2xl bg-surface-container px-6 py-4">
+        <section className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container px-6 py-4">
           <div className="flex items-center justify-between">
             <p className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
               Gesamtsaldo

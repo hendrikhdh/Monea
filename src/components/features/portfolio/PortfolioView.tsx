@@ -8,6 +8,8 @@ import { AddPortfolioAccountForm } from './AddPortfolioAccountForm'
 import { MonthlySnapshotRow } from './MonthlySnapshotRow'
 import { EditMonthlySnapshotForm } from './EditMonthlySnapshotForm'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Wallet, CalendarRange } from 'lucide-react'
 import type { PortfolioAccount } from '@/lib/types/database'
 import type { MonthlyBalance } from '@/lib/supabase/portfolio'
 
@@ -49,9 +51,12 @@ export function PortfolioView({
         </div>
 
         {accounts.length === 0 ? (
-          <p className="rounded-xl bg-surface-container-low p-8 text-center text-sm text-muted-foreground">
-            Noch keine Konten angelegt. Tippe auf <span className="font-bold">+</span>, um dein erstes Konto hinzuzufügen.
-          </p>
+          <EmptyState
+            icon={Wallet}
+            title="Noch keine Konten angelegt"
+            description="Erfasse Sparkonten, Brokerage oder Cash, um deinen Gesamtsaldo zu vervollständigen."
+            cta={{ label: 'Konto hinzufügen', onClick: () => setSheet({ kind: 'account-new' }) }}
+          />
         ) : (
           <div className="space-y-3">
             {accounts.map((account) => (
@@ -75,9 +80,11 @@ export function PortfolioView({
         </div>
 
         {monthlyBalances.length === 0 ? (
-          <p className="rounded-xl bg-surface-container-low p-8 text-center text-sm text-muted-foreground">
-            Noch keine Transaktionen erfasst.
-          </p>
+          <EmptyState
+            icon={CalendarRange}
+            title="Noch keine Transaktionen erfasst"
+            description="Sobald du Einnahmen oder Ausgaben erfasst, siehst du hier deine monatlichen Salden."
+          />
         ) : (
           <div className="space-y-3">
             {monthlyBalances.map((mb) => (

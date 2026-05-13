@@ -1,3 +1,4 @@
+import { createClient } from '@/lib/supabase/server'
 import { getMonthlyStats, getTransactions } from '@/lib/supabase/transactions'
 import { computeTotalPortfolio } from '@/lib/supabase/portfolio'
 import { getGoals } from '@/lib/supabase/goals'
@@ -9,6 +10,7 @@ import { MonthlyBudget } from '@/components/features/dashboard/MonthlyBudget'
 import { RecentTransactions } from '@/components/features/dashboard/RecentTransactions'
 import { DashboardGoals } from '@/components/features/dashboard/DashboardGoals'
 import { DashboardShell } from '@/components/features/dashboard/DashboardShell'
+import { DashboardOnboarding } from '@/components/features/dashboard/DashboardOnboarding'
 import { MotivationCard } from '@/components/features/dashboard/MotivationCard'
 
 export default async function DashboardPage() {
@@ -27,6 +29,19 @@ export default async function DashboardPage() {
     getBudgetsAtRisk(currentYear, currentMonth),
     getBudgets(),
   ])
+
+  const isNewUser =
+    recentTransactions.length === 0 &&
+    goals.length === 0 &&
+    allBudgets.length === 0 &&
+    balance === 0
+
+  if (isNewUser) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    const name = user?.user_metadata?.name as string | undefined
+    return <DashboardOnboarding name={name} />
+  }
 
   return (
     <DashboardShell

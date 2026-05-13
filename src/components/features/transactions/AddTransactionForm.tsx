@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState, useCallback, useEffect } from 'react'
-import { Check, Trash2 } from 'lucide-react'
+import { Check, Trash2, Calendar, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { addTransaction, editTransaction, removeTransaction } from '@/app/(app)/transactions/actions'
 import type { Category, TransactionWithCategory } from '@/lib/types/database'
@@ -18,6 +18,23 @@ interface AddTransactionFormProps {
 
 const MAX_CENTS = 9999999
 
+function todayIso() {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function formatDateLabel(iso: string): string {
+  const today = todayIso()
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayIso = yesterday.toISOString().slice(0, 10)
+
+  if (iso === today) return 'Heute'
+  if (iso === yesterdayIso) return 'Gestern'
+
+  const d = new Date(`${iso}T00:00:00`)
+  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'short' })
+}
+
 export function AddTransactionForm({ categories, transaction, onDone }: AddTransactionFormProps) {
   const isEdit = !!transaction
 
@@ -27,17 +44,25 @@ export function AddTransactionForm({ categories, transaction, onDone }: AddTrans
     return 0
   })
   const [categoryId, setCategoryId] = useState<string | null>(transaction?.category_id ?? null)
-  const today = new Date().toISOString().slice(0, 10)
+  const [date, setDate] = useState<string>(transaction?.date ?? todayIso())
+  const [note, setNote] = useState<string>(transaction?.note ?? '')
+  const [noteEditing, setNoteEditing] = useState<boolean>(!!transaction?.note)
 
   useEffect(() => {
     if (transaction) {
       setType(transaction.type)
       setCents(Math.round(transaction.amount * 100))
       setCategoryId(transaction.category_id)
+      setDate(transaction.date)
+      setNote(transaction.note ?? '')
+      setNoteEditing(!!transaction.note)
     } else {
       setType('expense')
       setCents(0)
       setCategoryId(null)
+      setDate(todayIso())
+      setNote('')
+      setNoteEditing(false)
     }
   }, [transaction])
 
@@ -63,8 +88,8 @@ export function AddTransactionForm({ categories, transaction, onDone }: AddTrans
       formData.set('amount', amount)
       formData.set('type', type)
       formData.set('category_id', categoryId || '')
-      formData.set('date', transaction?.date ?? today)
-      formData.set('note', transaction?.note ?? '')
+      formData.set('date', date || todayIso())
+      formData.set('note', note.trim())
 
       if (isEdit) {
         formData.set('id', transaction.id)
@@ -85,6 +110,9 @@ export function AddTransactionForm({ categories, transaction, onDone }: AddTrans
         toast.success(type === 'expense' ? 'Ausgabe gespeichert!' : 'Einnahme gespeichert!')
         setCents(0)
         setCategoryId(null)
+        setDate(todayIso())
+        setNote('')
+        setNoteEditing(false)
         onDone?.()
       }
       return result
@@ -142,6 +170,45 @@ export function AddTransactionForm({ categories, transaction, onDone }: AddTrans
         selected={categoryId}
         onSelect={setCategoryId}
       />
+
+      {/* Date + Note row */}
+      <div className="flex w-full items-center gap-2">
+        <label className="relative flex h-10 flex-1 items-center gap-2 rounded-full bg-surface-container-low px-3 text-xs font-semibold text-foreground transition-all active:scale-95">
+          <Calendar size={14} className="shrink-0 text-muted-foreground" />
+          <span className="flex-1 truncate">{formatDateLabel(date)}</span>
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value || todayIso())}
+            max={todayIso()}
+            className="absolute inset-0 cursor-pointer opacity-0"
+            aria-label="Datum"
+          />
+        </label>
+
+        {noteEditing ? (
+          <input
+            type="text"
+            value={note}
+            onChange={(e) => setNote(e.target.value.slice(0, 200))}
+            onBlur={() => { if (!note.trim()) setNoteEditing(false) }}
+            placeholder="Notiz…"
+            maxLength={200}
+            className="h-10 flex-[1.5] rounded-full bg-surface-container-low px-4 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+            enterKeyHint="done"
+            // No autoFocus on iOS — pushes content offscreen
+          />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setNoteEditing(true)}
+            className="flex h-10 flex-[1.5] items-center gap-2 rounded-full bg-surface-container-low px-3 text-xs font-semibold text-muted-foreground transition-all active:scale-95"
+          >
+            <Pencil size={14} className="shrink-0" />
+            <span className="flex-1 truncate text-left">Notiz hinzufügen</span>
+          </button>
+        )}
+      </div>
 
       {/* Numpad */}
       <div className="w-full">
