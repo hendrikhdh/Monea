@@ -177,6 +177,8 @@
   }
   html {
     @apply font-sans;
+    /* Disable iOS double-tap zoom on the whole document. */
+    touch-action: pan-x pan-y;
   }
   /* Remove iOS 300ms tap delay + grey tap-highlight flash on all
      interactive elements. */
@@ -190,6 +192,15 @@
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
+}
+
+/* iOS Safari auto-zooms on input focus when font-size < 16px.
+   Force 16px on all form fields to prevent it — Tailwind text-xs/sm
+   on inputs would otherwise trigger the zoom. Overrides utility classes. */
+input,
+textarea,
+select {
+  font-size: 16px !important;
 }
 
 @layer utilities {

@@ -1,19 +1,28 @@
 'use client'
 
 import { useState, useActionState } from 'react'
+import { Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { addRecurring } from '@/app/(app)/transactions/actions'
-import type { Category } from '@/lib/types/database'
+import type { Category, Goal, TransactionType } from '@/lib/types/database'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
 
 interface AddRecurringFormProps {
   categories: Category[]
+  goals: Goal[]
   onDone: () => void
 }
 
-export function AddRecurringForm({ categories, onDone }: AddRecurringFormProps) {
-  const [type, setType] = useState<'expense' | 'income'>('expense')
+const TYPE_LABEL: Record<TransactionType, string> = {
+  expense: 'Ausgabe',
+  income: 'Einnahme',
+  savings_deposit: 'Sparen',
+}
+
+export function AddRecurringForm({ categories, goals, onDone }: AddRecurringFormProps) {
+  const [type, setType] = useState<TransactionType>('expense')
   const [categoryId, setCategoryId] = useState('')
+  const [goalId, setGoalId] = useState('')
   const [interval, setInterval] = useState<'weekly' | 'monthly' | 'yearly'>('monthly')
 
   const filteredCategories = categories.filter(
@@ -36,28 +45,36 @@ export function AddRecurringForm({ categories, onDone }: AddRecurringFormProps) 
     null
   )
 
+  const isDeposit = type === 'savings_deposit'
+  const canSubmit = isDeposit ? !!goalId : true
+
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="type" value={type} />
-      <input type="hidden" name="category_id" value={categoryId} />
+      <input type="hidden" name="category_id" value={isDeposit ? '' : categoryId} />
+      <input type="hidden" name="goal_id" value={isDeposit ? goalId : ''} />
       <input type="hidden" name="interval" value={interval} />
 
       {/* Type toggle */}
-      <div className="flex gap-2 rounded-xl bg-surface-container p-1">
-        <button
-          type="button"
-          onClick={() => { setType('expense'); setCategoryId('') }}
-          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${type === 'expense' ? 'bg-destructive/10 text-destructive' : 'text-muted-foreground'}`}
-        >
-          Ausgabe
-        </button>
-        <button
-          type="button"
-          onClick={() => { setType('income'); setCategoryId('') }}
-          className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${type === 'income' ? 'bg-primary/10 text-primary' : 'text-muted-foreground'}`}
-        >
-          Einnahme
-        </button>
+      <div className="flex gap-1 rounded-xl bg-surface-container p-1">
+        {(['expense', 'income', 'savings_deposit'] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => { setType(t); setCategoryId(''); setGoalId('') }}
+            className={`flex-1 rounded-lg py-2 text-sm font-semibold transition-all ${
+              type === t
+                ? t === 'expense'
+                  ? 'bg-destructive/10 text-destructive'
+                  : t === 'income'
+                    ? 'bg-primary/10 text-primary'
+                    : 'bg-primary-container/40 text-foreground'
+                : 'text-muted-foreground'
+            }`}
+          >
+            {TYPE_LABEL[t]}
+          </button>
+        ))}
       </div>
 
       {/* Amount */}
@@ -102,30 +119,59 @@ export function AddRecurringForm({ categories, onDone }: AddRecurringFormProps) 
         />
       </div>
 
-      {/* Category */}
-      <div>
-        <label className="text-xs font-semibold text-on-surface-variant">Kategorie</label>
-        <div className="mt-1 flex flex-wrap gap-2">
-          {filteredCategories.map((cat) => {
-            const Icon = ICON_MAP[cat.icon]
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setCategoryId(cat.id)}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                  categoryId === cat.id
-                    ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
-                    : 'bg-surface-container text-muted-foreground'
-                }`}
-              >
-                {Icon && <Icon size={14} />}
-                {cat.name}
-              </button>
-            )
-          })}
+      {/* Picker — Category for income/expense, Goal for savings */}
+      {isDeposit ? (
+        <div>
+          <label className="text-xs font-semibold text-on-surface-variant">Sparziel</label>
+          {goals.length === 0 ? (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Lege zuerst ein Sparziel an.
+            </p>
+          ) : (
+            <div className="mt-1 flex flex-wrap gap-2">
+              {goals.map((goal) => (
+                <button
+                  key={goal.id}
+                  type="button"
+                  onClick={() => setGoalId(goal.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                    goalId === goal.id
+                      ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
+                      : 'bg-surface-container text-muted-foreground'
+                  }`}
+                >
+                  <Target size={14} />
+                  {goal.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div>
+          <label className="text-xs font-semibold text-on-surface-variant">Kategorie</label>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {filteredCategories.map((cat) => {
+              const Icon = ICON_MAP[cat.icon]
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategoryId(cat.id)}
+                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                    categoryId === cat.id
+                      ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
+                      : 'bg-surface-container text-muted-foreground'
+                  }`}
+                >
+                  {Icon && <Icon size={14} />}
+                  {cat.name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Note */}
       <div>
@@ -141,7 +187,7 @@ export function AddRecurringForm({ categories, onDone }: AddRecurringFormProps) 
       {/* Submit */}
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || !canSubmit}
         className="h-12 w-full rounded-xl bg-primary font-semibold text-primary-foreground transition-all active:scale-95 disabled:opacity-50"
       >
         {pending ? 'Wird erstellt...' : 'Erstellen'}

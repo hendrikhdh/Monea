@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState } from 'react'
-import { Pause, Play, Trash2, Repeat } from 'lucide-react'
+import { Pause, Play, Trash2, Repeat, Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -42,10 +42,15 @@ export function RecurringList({ items }: RecurringListProps) {
 }
 
 function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
-  const Icon = item.category ? ICON_MAP[item.category.icon] : null
+  const isDeposit = item.type === 'savings_deposit'
+  const Icon = !isDeposit && item.category ? ICON_MAP[item.category.icon] : null
   const color = item.category?.color ?? '#888'
   const amount = Number(item.amount)
-  const formatted = `${item.type === 'income' ? '+' : '-'}${formatCurrencyWithSymbol(amount)}`
+  const sign = item.type === 'income' ? '+' : isDeposit ? '' : '-'
+  const formatted = `${sign}${formatCurrencyWithSymbol(amount)}`
+  const label = isDeposit
+    ? (item.goal?.name ?? 'Sparziel')
+    : (item.category?.name ?? 'Ohne Kategorie')
 
   const [, toggleAction] = useActionState(
     async (_prev: unknown, formData: FormData) => {
@@ -73,14 +78,18 @@ function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
     )}>
       <div
         className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: color + '20' }}
+        style={{ backgroundColor: isDeposit ? undefined : color + '20' }}
       >
-        {Icon && <Icon size={20} style={{ color }} />}
+        {isDeposit ? (
+          <Target size={20} className="text-primary" />
+        ) : Icon ? (
+          <Icon size={20} style={{ color }} />
+        ) : null}
       </div>
 
       <div className="flex-1 min-w-0">
         <p className="truncate text-base font-semibold text-foreground">
-          {item.category?.name ?? 'Ohne Kategorie'}
+          {label}
         </p>
         <p className="text-xs text-on-surface-variant">
           {INTERVAL_LABELS[item.interval]} · {new Date(item.next_due).toLocaleDateString('de-DE')}
@@ -93,7 +102,7 @@ function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
       <p
         className={cn(
           'font-display text-lg font-semibold tabular-nums',
-          item.type === 'income' ? 'text-success' : 'text-foreground'
+          item.type === 'income' ? 'text-success' : isDeposit ? 'text-primary' : 'text-foreground'
         )}
       >
         {formatted}

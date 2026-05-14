@@ -103,6 +103,7 @@ export async function getMonthlyTrend(months: number): Promise<TrendPoint[]> {
     const { data, error } = await supabase
       .from('transactions')
       .select('amount, type')
+      .in('type', ['income', 'expense'])
       .gte('date', startDate)
       .lt('date', endDate)
 
@@ -112,7 +113,7 @@ export async function getMonthlyTrend(months: number): Promise<TrendPoint[]> {
     let expenses = 0
     for (const tx of data as Pick<Transaction, 'amount' | 'type'>[]) {
       if (tx.type === 'income') income += Number(tx.amount)
-      else expenses += Number(tx.amount)
+      else if (tx.type === 'expense') expenses += Number(tx.amount)
     }
 
     const label = d.toLocaleDateString('de-DE', { month: 'short' })

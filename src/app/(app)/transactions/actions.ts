@@ -8,11 +8,13 @@ import { createRecurring, updateRecurring, deleteRecurring } from '@/lib/supabas
 
 export async function addTransaction(formData: FormData) {
   const categoryId = formData.get('category_id') as string
+  const goalId = formData.get('goal_id') as string
 
   const result = transactionSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
+    goal_id: goalId || null,
     date: formData.get('date'),
     note: formData.get('note'),
   })
@@ -29,6 +31,7 @@ export async function addTransaction(formData: FormData) {
 
   revalidatePath('/transactions')
   revalidatePath('/')
+  revalidatePath('/goals')
   return { success: true }
 }
 
@@ -37,11 +40,13 @@ export async function editTransaction(formData: FormData) {
   if (!id) return { error: 'Transaction ID is required.' }
 
   const categoryId = formData.get('category_id') as string
+  const goalId = formData.get('goal_id') as string
 
   const result = transactionSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
+    goal_id: goalId || null,
     date: formData.get('date'),
     note: formData.get('note'),
   })
@@ -58,6 +63,7 @@ export async function editTransaction(formData: FormData) {
 
   revalidatePath('/transactions')
   revalidatePath('/')
+  revalidatePath('/goals')
   return { success: true }
 }
 
@@ -74,16 +80,19 @@ export async function removeTransaction(formData: FormData) {
 
   revalidatePath('/transactions')
   revalidatePath('/')
+  revalidatePath('/goals')
   return { success: true }
 }
 
 export async function addRecurring(formData: FormData) {
   const categoryId = formData.get('category_id') as string
+  const goalId = formData.get('goal_id') as string
 
   const result = recurringSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
+    goal_id: goalId || null,
     interval: formData.get('interval'),
     start_date: formData.get('start_date'),
     note: formData.get('note'),
@@ -101,6 +110,7 @@ export async function addRecurring(formData: FormData) {
 
   revalidatePath('/transactions')
   revalidatePath('/')
+  revalidatePath('/goals')
   return { success: true }
 }
 

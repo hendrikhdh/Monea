@@ -123,6 +123,7 @@ export async function getMonthlyBalances(): Promise<MonthlyBalance[]> {
   const { data: txData, error: txError } = await supabase
     .from('transactions')
     .select('amount, type, date')
+    .in('type', ['income', 'expense'])
 
   if (txError) throw txError
 
@@ -167,6 +168,7 @@ export async function getMonthlyBalanceLive(year: number, month: number): Promis
   const { data, error } = await supabase
     .from('transactions')
     .select('amount, type')
+    .in('type', ['income', 'expense'])
     .gte('date', startDate)
     .lt('date', endDate)
 

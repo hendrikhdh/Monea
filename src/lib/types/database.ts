@@ -8,12 +8,15 @@ export interface Category {
   created_at: string
 }
 
+export type TransactionType = 'income' | 'expense' | 'savings_deposit'
+
 export interface Transaction {
   id: string
   user_id: string
   category_id: string | null
+  goal_id: string | null
   amount: number
-  type: 'income' | 'expense'
+  type: TransactionType
   date: string
   note: string | null
   created_at: string
@@ -21,6 +24,7 @@ export interface Transaction {
 
 export interface TransactionWithCategory extends Transaction {
   category: Category | null
+  goal: Pick<Goal, 'id' | 'name'> | null
 }
 
 export interface Budget {
@@ -39,8 +43,9 @@ export interface RecurringTransaction {
   id: string
   user_id: string
   category_id: string | null
+  goal_id: string | null
   amount: number
-  type: 'income' | 'expense'
+  type: TransactionType
   note: string | null
   interval: 'weekly' | 'monthly' | 'yearly'
   start_date: string
@@ -51,6 +56,7 @@ export interface RecurringTransaction {
 
 export interface RecurringTransactionWithCategory extends RecurringTransaction {
   category: Category | null
+  goal: Pick<Goal, 'id' | 'name'> | null
 }
 
 export interface Goal {

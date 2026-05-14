@@ -1,5 +1,6 @@
 'use client'
 
+import { Target } from 'lucide-react'
 import type { TransactionWithCategory } from '@/lib/types/database'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
 import { getShapeForCategory } from '@/components/features/categories/organicShapes'
@@ -50,22 +51,39 @@ export function TransactionCard({
   blobIndex: number
   onEdit?: (transaction: TransactionWithCategory) => void
 }) {
-  const IconComponent = transaction.category
+  const isDeposit = transaction.type === 'savings_deposit'
+  const IconComponent = !isDeposit && transaction.category
     ? ICON_MAP[transaction.category.icon]
     : null
 
   const formatted = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
-    signDisplay: 'always',
+    signDisplay: isDeposit ? 'never' : 'always',
   }).format(
-    transaction.type === 'expense' ? -transaction.amount : transaction.amount
+    transaction.type === 'income' ? transaction.amount : isDeposit ? transaction.amount : -transaction.amount
   )
 
   const timeFormatted = new Intl.DateTimeFormat('de-DE', {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(transaction.created_at))
+
+  const containerClass = transaction.type === 'income'
+    ? 'border-2 border-secondary bg-background'
+    : isDeposit
+      ? 'border-2 border-primary-container/40 bg-background'
+      : 'bg-surface-container-low'
+
+  const amountClass = transaction.type === 'income'
+    ? 'text-success'
+    : isDeposit
+      ? 'text-primary'
+      : 'text-foreground'
+
+  const subtitleLabel = isDeposit
+    ? transaction.goal?.name ?? 'Sparziel'
+    : transaction.category?.name ?? 'Uncategorized'
 
   return (
     <button
@@ -74,26 +92,30 @@ export function TransactionCard({
       className={cn(
         'flex w-full items-center gap-4 p-4 text-left transition-all active:scale-[0.98]',
         BLOB_SHAPES[blobIndex],
-        transaction.type === 'income'
-          ? 'border-2 border-secondary bg-background'
-          : 'bg-surface-container-low'
+        containerClass
       )}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
     >
       <div
         className={cn(
           'flex h-12 w-12 shrink-0 items-center justify-center',
-          transaction.category
-            ? getShapeForCategory(transaction.category.id)
-            : 'rounded-full'
+          isDeposit
+            ? `${getShapeForCategory(transaction.goal_id ?? transaction.id)} bg-primary-container/30`
+            : transaction.category
+              ? getShapeForCategory(transaction.category.id)
+              : 'rounded-full'
         )}
         style={{
-          backgroundColor: transaction.category
-            ? `${transaction.category.color}25`
-            : 'var(--secondary)',
+          backgroundColor: isDeposit
+            ? undefined
+            : transaction.category
+              ? `${transaction.category.color}25`
+              : 'var(--secondary)',
         }}
       >
-        {IconComponent ? (
+        {isDeposit ? (
+          <Target size={20} className="text-primary" />
+        ) : IconComponent ? (
           <IconComponent
             size={20}
             style={{ color: transaction.category?.color }}
@@ -105,21 +127,14 @@ export function TransactionCard({
 
       <div className="flex-1 min-w-0">
         <p className="truncate text-base font-semibold text-foreground">
-          {transaction.note || transaction.category?.name || 'Transaction'}
+          {transaction.note || subtitleLabel}
         </p>
         <p className="text-xs text-on-surface-variant">
-          {transaction.category?.name ?? 'Uncategorized'} · {timeFormatted}
+          {subtitleLabel} · {timeFormatted}
         </p>
       </div>
 
-      <p
-        className={cn(
-          'font-display text-lg font-semibold tabular-nums',
-          transaction.type === 'income'
-            ? 'text-success'
-            : 'text-foreground'
-        )}
-      >
+      <p className={cn('font-display text-lg font-semibold tabular-nums', amountClass)}>
         {formatted}
       </p>
     </button>

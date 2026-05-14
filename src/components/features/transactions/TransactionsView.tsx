@@ -10,12 +10,15 @@ import { TransactionSearch } from './TransactionSearch'
 import { TransactionFilters } from './TransactionFilters'
 import { TransactionGroup } from './TransactionGroup'
 import { AddTransactionForm } from './AddTransactionForm'
-import type { TransactionWithCategory, Category } from '@/lib/types/database'
+import type { TransactionWithCategory, Category, Goal } from '@/lib/types/database'
+
+type TxFilter = 'all' | 'income' | 'expense' | 'savings_deposit'
 
 interface TransactionsViewProps {
   transactions: TransactionWithCategory[]
   categories: Category[]
-  initialFilter?: 'all' | 'income' | 'expense'
+  goals: Goal[]
+  initialFilter?: TxFilter
 }
 
 function groupByDate(transactions: TransactionWithCategory[]) {
@@ -56,11 +59,11 @@ function groupByDate(transactions: TransactionWithCategory[]) {
   return groups
 }
 
-export function TransactionsView({ transactions, categories, initialFilter = 'all' }: TransactionsViewProps) {
+export function TransactionsView({ transactions, categories, goals, initialFilter = 'all' }: TransactionsViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editTransaction, setEditTransaction] = useState<TransactionWithCategory | null>(null)
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<'all' | 'income' | 'expense'>(initialFilter)
+  const [filter, setFilter] = useState<TxFilter>(initialFilter)
 
   const filtered = useMemo(() => {
     let result = transactions
@@ -72,7 +75,8 @@ export function TransactionsView({ transactions, categories, initialFilter = 'al
       result = result.filter(
         (tx) =>
           tx.note?.toLowerCase().includes(q) ||
-          tx.category?.name.toLowerCase().includes(q)
+          tx.category?.name.toLowerCase().includes(q) ||
+          tx.goal?.name.toLowerCase().includes(q)
       )
     }
     return result
@@ -155,6 +159,7 @@ export function TransactionsView({ transactions, categories, initialFilter = 'al
       <BottomSheet open={sheetOpen} onClose={handleClose}>
         <AddTransactionForm
           categories={categories}
+          goals={goals}
           transaction={editTransaction}
           onDone={handleClose}
         />

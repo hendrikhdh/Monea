@@ -18,7 +18,7 @@ export function TransactionSearch({ value, onChange }: TransactionSearchProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Suchen nach 'Kaffee' oder 'Yoga'..."
-        className="h-14 w-full rounded-full border-none bg-surface-container-low pl-14 pr-6 font-medium text-foreground placeholder:text-on-surface-variant transition-all focus:ring-2 focus:ring-secondary"
+        className="h-14 w-full rounded-full border-none bg-surface-container-low pl-14 pr-6 font-medium text-foreground placeholder:text-on-surface-variant transition-all focus:outline-none focus:ring-0"
       />
     </div>
   )

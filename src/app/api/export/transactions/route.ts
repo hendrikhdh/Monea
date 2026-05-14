@@ -30,12 +30,19 @@ export async function GET() {
   try {
     const transactions = await getTransactions(10000)
 
-    const header = ['Datum', 'Typ', 'Betrag', 'Kategorie', 'Notiz']
+    const header = ['Datum', 'Typ', 'Betrag', 'Kategorie / Sparziel', 'Notiz']
+    const typeLabel = {
+      income: 'Einnahme',
+      expense: 'Ausgabe',
+      savings_deposit: 'Spareinlage',
+    } as const
     const rows = transactions.map((tx) => [
       formatDateDE(tx.date),
-      tx.type === 'income' ? 'Einnahme' : 'Ausgabe',
+      typeLabel[tx.type],
       formatAmount(Number(tx.amount)),
-      tx.category?.name ?? '',
+      tx.type === 'savings_deposit'
+        ? (tx.goal?.name ?? '')
+        : (tx.category?.name ?? ''),
       tx.note ?? '',
     ])
 

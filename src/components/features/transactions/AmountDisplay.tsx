@@ -1,6 +1,14 @@
+import type { TransactionType } from '@/lib/types/database'
+
 interface AmountDisplayProps {
   cents: number
-  type: 'income' | 'expense'
+  type: TransactionType
+}
+
+const LABEL: Record<TransactionType, string> = {
+  income: 'Einnahme',
+  expense: 'Ausgabe',
+  savings_deposit: 'Spareinlage',
 }
 
 export function AmountDisplay({ cents, type }: AmountDisplayProps) {
@@ -13,7 +21,7 @@ export function AmountDisplay({ cents, type }: AmountDisplayProps) {
     <div className="relative flex w-full justify-center">
       <div className="relative z-10 flex h-28 w-48 flex-col items-center justify-center rounded-[60%_40%_70%_30%/40%_50%_60%_40%] bg-secondary text-center shadow-[0_20px_50px_rgba(111,90,82,0.1)]">
         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-secondary-container">
-          {type === 'expense' ? 'Ausgabe' : 'Einnahme'}
+          {LABEL[type]}
         </span>
         <div className="font-heading text-3xl font-extrabold tracking-tighter text-foreground">
           € {display}

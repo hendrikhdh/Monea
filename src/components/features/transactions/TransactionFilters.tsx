@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 
-type FilterType = 'all' | 'income' | 'expense'
+type FilterType = 'all' | 'income' | 'expense' | 'savings_deposit'
 
 interface TransactionFiltersProps {
   active: FilterType
@@ -13,17 +13,18 @@ const filters: { value: FilterType; label: string }[] = [
   { value: 'all', label: 'Alle' },
   { value: 'income', label: 'Einnahmen' },
   { value: 'expense', label: 'Ausgaben' },
+  { value: 'savings_deposit', label: 'Sparen' },
 ]
 
 export function TransactionFilters({ active, onChange }: TransactionFiltersProps) {
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+    <div className="flex w-full gap-1.5">
       {filters.map(({ value, label }) => (
         <button
           key={value}
           onClick={() => onChange(value)}
           className={cn(
-            'whitespace-nowrap rounded-full px-7 py-3 text-sm font-semibold transition-all active:scale-95',
+            'flex-1 whitespace-nowrap rounded-full px-2 py-2 text-xs font-semibold transition-all active:scale-95',
             active === value
               ? 'bg-primary-container text-primary-foreground'
               : 'bg-surface-container-high text-foreground hover:bg-secondary'

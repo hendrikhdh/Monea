@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createGoal, updateGoal, deleteGoal } from '@/lib/supabase/goals'
+import { createTransaction } from '@/lib/supabase/transactions'
 import { goalSchema } from '@/lib/validations/goal.schema'
 
 export async function addGoal(formData: FormData) {
@@ -17,18 +18,33 @@ export async function addGoal(formData: FormData) {
   }
 
   const imagePath = formData.get('image_path') as string | null
+  const initialAmount = result.data.current_amount
 
   try {
-    await createGoal({
-      ...result.data,
+    const goal = await createGoal({
+      name: result.data.name,
+      target_amount: result.data.target_amount,
+      current_amount: 0,
       image_path: imagePath || null,
       image_aspect: result.data.image_aspect ?? '16:9',
     })
+
+    if (initialAmount > 0) {
+      await createTransaction({
+        category_id: null,
+        goal_id: goal.id,
+        amount: initialAmount,
+        type: 'savings_deposit',
+        date: new Date().toISOString().slice(0, 10),
+        note: 'Initialbetrag',
+      })
+    }
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to create goal.' }
   }
 
   revalidatePath('/goals')
+  revalidatePath('/transactions')
   revalidatePath('/')
   return { success: true }
 }
@@ -51,8 +67,11 @@ export async function editGoal(formData: FormData) {
   const imagePath = formData.get('image_path') as string | null
 
   try {
+    // current_amount is derived from savings_deposit transactions via DB trigger.
+    // Don't overwrite it from the form.
     await updateGoal(id, {
-      ...result.data,
+      name: result.data.name,
+      target_amount: result.data.target_amount,
       image_path: imagePath || null,
       image_aspect: result.data.image_aspect ?? '16:9',
     })

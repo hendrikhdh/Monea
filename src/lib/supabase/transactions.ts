@@ -5,7 +5,7 @@ export async function getTransactions(limit = 50): Promise<TransactionWithCatego
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('transactions')
-    .select('*, category:categories(*)')
+    .select('*, category:categories(*), goal:goals(id, name)')
     .order('date', { ascending: false })
     .limit(limit)
 
@@ -24,6 +24,7 @@ export async function getMonthlyStats(year: number, month: number) {
   const { data, error } = await supabase
     .from('transactions')
     .select('amount, type')
+    .in('type', ['income', 'expense'])
     .gte('date', startDate)
     .lt('date', endDate)
 
@@ -33,7 +34,7 @@ export async function getMonthlyStats(year: number, month: number) {
   let expenses = 0
   for (const tx of data as Pick<Transaction, 'amount' | 'type'>[]) {
     if (tx.type === 'income') income += Number(tx.amount)
-    else expenses += Number(tx.amount)
+    else if (tx.type === 'expense') expenses += Number(tx.amount)
   }
 
   return { income, expenses, balance: income - expenses }
@@ -44,13 +45,14 @@ export async function getTotalBalance() {
   const { data, error } = await supabase
     .from('transactions')
     .select('amount, type')
+    .in('type', ['income', 'expense'])
 
   if (error) throw error
 
   let balance = 0
   for (const tx of data as Pick<Transaction, 'amount' | 'type'>[]) {
     if (tx.type === 'income') balance += Number(tx.amount)
-    else balance -= Number(tx.amount)
+    else if (tx.type === 'expense') balance -= Number(tx.amount)
   }
 
   return balance
@@ -84,7 +86,7 @@ export async function getSpendingByCategory(year: number, month: number) {
 }
 
 export async function createTransaction(
-  tx: Pick<Transaction, 'category_id' | 'amount' | 'type' | 'date' | 'note'>
+  tx: Pick<Transaction, 'category_id' | 'goal_id' | 'amount' | 'type' | 'date' | 'note'>
 ): Promise<Transaction> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -103,7 +105,7 @@ export async function createTransaction(
 
 export async function updateTransaction(
   id: string,
-  tx: Partial<Pick<Transaction, 'category_id' | 'amount' | 'type' | 'date' | 'note'>>
+  tx: Partial<Pick<Transaction, 'category_id' | 'goal_id' | 'amount' | 'type' | 'date' | 'note'>>
 ): Promise<Transaction> {
   const supabase = await createClient()
   const { data, error } = await supabase

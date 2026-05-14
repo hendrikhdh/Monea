@@ -269,7 +269,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
         </div>
         <div className="flex-1">
           <label className="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            Gespart
+            {isEdit ? 'Gespart (Auto)' : 'Startbetrag'}
           </label>
           <input
             name="current_amount"
@@ -278,10 +278,12 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
             min="0"
             max={MAX_GOAL_AMOUNT}
             placeholder="0"
-            className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
+            className="h-14 w-full rounded-2xl border border-input bg-transparent px-5 text-center text-base font-semibold placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50 read-only:bg-surface-container-low read-only:cursor-not-allowed"
             disabled={pending}
+            readOnly={isEdit}
             value={current}
             onChange={(e) => {
+              if (isEdit) return
               const next = e.target.value
               if (next === '' || Number(next) <= MAX_GOAL_AMOUNT) setCurrent(next)
             }}
@@ -289,9 +291,15 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
         </div>
       </div>
 
-      {target && current && Number(current) > Number(target) && (
+      {isEdit && (
+        <p className="text-xs text-muted-foreground -mt-3">
+          Der gesparte Betrag wird automatisch aus deinen Spareinlagen berechnet.
+        </p>
+      )}
+
+      {!isEdit && target && current && Number(current) > Number(target) && (
         <p className="text-sm text-destructive">
-          Gespart kann nicht größer als das Ziel sein.
+          Startbetrag kann nicht größer als das Ziel sein.
         </p>
       )}
 
