@@ -12,8 +12,16 @@ import { DashboardGoals } from '@/components/features/dashboard/DashboardGoals'
 import { DashboardShell } from '@/components/features/dashboard/DashboardShell'
 import { DashboardOnboarding } from '@/components/features/dashboard/DashboardOnboarding'
 import { MotivationCard } from '@/components/features/dashboard/MotivationCard'
+import { MarketingLanding } from '@/components/features/marketing/MarketingLanding'
 
 export default async function DashboardPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    return <MarketingLanding />
+  }
+
   const now = new Date()
   const currentYear = now.getFullYear()
   const currentMonth = now.getMonth() + 1
@@ -37,9 +45,7 @@ export default async function DashboardPage() {
     balance === 0
 
   if (isNewUser) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-    const name = user?.user_metadata?.name as string | undefined
+    const name = user.user_metadata?.name as string | undefined
     return <DashboardOnboarding name={name} />
   }
 

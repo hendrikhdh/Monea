@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BarChart3 } from 'lucide-react'
 import { AnimatedSection } from '@/components/ui/animated-section'
 import { EmptyState } from '@/components/ui/empty-state'
@@ -29,6 +29,12 @@ interface AnalyticsShellProps {
   initialTrend: TrendPoint[]
 }
 
+interface AnalyticsData {
+  expense: SpendingByCategory[]
+  income: SpendingByCategory[]
+  trend: TrendPoint[]
+}
+
 export function AnalyticsShell({
   initialPeriod,
   initialType,
@@ -37,44 +43,71 @@ export function AnalyticsShell({
 }: AnalyticsShellProps) {
   const [period, setPeriod] = useState<AnalyticsPeriod>(initialPeriod)
   const [type, setType] = useState<AnalyticsType>(initialType)
-  const [spending, setSpending] = useState(initialSpending)
-  const [trend, setTrend] = useState(initialTrend)
+  const [data, setData] = useState<AnalyticsData>(() => ({
+    expense: initialType === 'expense' ? initialSpending : [],
+    income: initialType === 'income' ? initialSpending : [],
+    trend: initialTrend,
+  }))
   const [excluded, setExcluded] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(false)
+  const didMount = useRef(false)
 
   useEffect(() => {
-    if (period === initialPeriod && type === initialType) return
+    const isFirstRender = !didMount.current
+    didMount.current = true
 
-    let cancelled = false
     const controller = new AbortController()
-    setLoading(true)
-    fetch(`/api/analytics?period=${period}&type=${type}`, { signal: controller.signal })
-      .then((res) => (res.ok ? res.json() : Promise.reject(res)))
-      .then((data) => {
-        if (cancelled) return
-        setSpending(data.spending)
-        setTrend(data.trend)
-      })
-      .catch(() => {
-        // Network/abort errors are fine — leave previous data shown
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
 
-    return () => {
-      cancelled = true
-      controller.abort()
+    if (isFirstRender) {
+      const otherType: AnalyticsType = initialType === 'expense' ? 'income' : 'expense'
+      setLoading(true)
+      fetch(`/api/analytics?period=${period}&type=${otherType}`, { signal: controller.signal })
+        .then((r) => (r.ok ? r.json() : Promise.reject(r)))
+        .then((d) => {
+          setData((prev) => ({ ...prev, [otherType]: d.spending }))
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+
+      return () => controller.abort()
     }
-  }, [period, type, initialPeriod, initialType])
 
-  const filteredSpending = useMemo(
-    () => spending.filter((s) => !excluded.has(s.id)),
-    [spending, excluded]
+    setLoading(true)
+    Promise.all([
+      fetch(`/api/analytics?period=${period}&type=expense`, { signal: controller.signal }).then((r) =>
+        r.ok ? r.json() : Promise.reject(r)
+      ),
+      fetch(`/api/analytics?period=${period}&type=income`, { signal: controller.signal }).then((r) =>
+        r.ok ? r.json() : Promise.reject(r)
+      ),
+    ])
+      .then(([exp, inc]) => {
+        setData({ expense: exp.spending, income: inc.spending, trend: exp.trend })
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+
+    return () => controller.abort()
+  }, [period, initialType])
+
+  const activeSpending = type === 'expense' ? data.expense : data.income
+
+  const filteredActive = useMemo(
+    () => activeSpending.filter((s) => !excluded.has(s.id)),
+    [activeSpending, excluded]
+  )
+  const filteredExpense = useMemo(
+    () => data.expense.filter((s) => !excluded.has(s.id)),
+    [data.expense, excluded]
+  )
+  const filteredIncome = useMemo(
+    () => data.income.filter((s) => !excluded.has(s.id)),
+    [data.income, excluded]
   )
 
-  const trendHasData = trend.some((t) => t.income > 0 || t.expenses > 0)
-  const isEmpty = filteredSpending.length === 0 && !trendHasData
+  const trendHasData = data.trend.some((t) => t.income > 0 || t.expenses > 0)
+  const isEmpty =
+    filteredExpense.length === 0 && filteredIncome.length === 0 && !trendHasData
 
   const handleCategoryToggle = (id: string) => {
     setExcluded((prev) => {
@@ -86,7 +119,7 @@ export function AnalyticsShell({
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 px-6">
+    <div className="mx-auto w-full max-w-2xl space-y-6 px-6 lg:max-w-[1400px] lg:px-10">
       <AnimatedSection delay={0}>
         <h2 className="font-heading text-2xl font-bold">Analyse</h2>
         <p className="text-sm text-muted-foreground">{PERIOD_LABELS[period]}</p>
@@ -96,7 +129,7 @@ export function AnalyticsShell({
         <AnalyticsFilters
           period={period}
           type={type}
-          spending={spending}
+          spending={activeSpending}
           excludedCategoryIds={excluded}
           onPeriodChange={setPeriod}
           onTypeChange={setType}
@@ -116,37 +149,78 @@ export function AnalyticsShell({
         </AnimatedSection>
       ) : (
         <div
-          className={`space-y-6 transition-opacity duration-200 ${loading ? 'opacity-50' : 'opacity-100'}`}
+          className={`transition-opacity duration-200 ${loading ? 'opacity-50' : 'opacity-100'}`}
         >
-          {/* Spending by category donut */}
-          <AnimatedSection delay={0.05}>
-            <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
-              <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
-                {type === 'expense' ? 'Ausgaben' : 'Einnahmen'} nach Kategorie
-              </h3>
-              <SpendingDonut data={filteredSpending} />
-            </div>
-          </AnimatedSection>
+          {/* Mobile: active-type only */}
+          <div className="space-y-6 lg:hidden">
+            <AnimatedSection delay={0.05}>
+              <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                  {type === 'expense' ? 'Ausgaben' : 'Einnahmen'} nach Kategorie
+                </h3>
+                <SpendingDonut data={filteredActive} />
+              </div>
+            </AnimatedSection>
 
-          {/* Monthly trend */}
-          <AnimatedSection delay={0.1}>
-            <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
-              <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
-                Trend
-              </h3>
-              <TrendChart data={trend} />
-            </div>
-          </AnimatedSection>
+            <AnimatedSection delay={0.1}>
+              <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                  Trend
+                </h3>
+                <TrendChart data={data.trend} />
+              </div>
+            </AnimatedSection>
 
-          {/* Top categories */}
-          <AnimatedSection delay={0.15}>
-            <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
-              <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
-                Top {type === 'expense' ? 'Ausgaben' : 'Einnahmen'}
-              </h3>
-              <TopCategories data={filteredSpending} />
+            <AnimatedSection delay={0.15}>
+              <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                  Top {type === 'expense' ? 'Ausgaben' : 'Einnahmen'}
+                </h3>
+                <TopCategories data={filteredActive} />
+              </div>
+            </AnimatedSection>
+          </div>
+
+          {/* Desktop: two columns side-by-side + full-width trend below */}
+          <div className="hidden space-y-6 lg:block">
+            <div className="grid grid-cols-2 gap-6">
+              {(
+                [
+                  { kind: 'expense', label: 'Ausgaben', data: filteredExpense, delay: 0.05 },
+                  { kind: 'income', label: 'Einnahmen', data: filteredIncome, delay: 0.08 },
+                ] as const
+              ).map((col) => (
+                <AnimatedSection key={col.kind} delay={col.delay}>
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
+                      {col.label}
+                    </p>
+                    <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                      <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                        {col.label} nach Kategorie
+                      </h3>
+                      <SpendingDonut data={col.data} />
+                    </div>
+                    <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                      <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                        Top {col.label}
+                      </h3>
+                      <TopCategories data={col.data} />
+                    </div>
+                  </div>
+                </AnimatedSection>
+              ))}
             </div>
-          </AnimatedSection>
+
+            <AnimatedSection delay={0.12}>
+              <div className="rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container p-6">
+                <h3 className="mb-4 text-sm font-semibold text-on-surface-variant">
+                  Trend
+                </h3>
+                <TrendChart data={data.trend} />
+              </div>
+            </AnimatedSection>
+          </div>
         </div>
       )}
     </div>

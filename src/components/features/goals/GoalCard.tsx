@@ -45,7 +45,7 @@ export function GoalCard({ goal, onClick }: GoalCardProps) {
       type="button"
       onClick={onClick}
       className={cn(
-        'relative flex w-full flex-col justify-end overflow-hidden rounded-[2rem_1rem_2rem_2.5rem] text-left transition-all active:scale-[0.97]',
+        'group relative flex w-full flex-col justify-end overflow-hidden rounded-[2rem_1rem_2rem_2.5rem] text-left transition-all hover:brightness-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.97]',
         hasImage ? getAspectClass(goal.image_aspect) : 'h-56 bg-surface-container'
       )}
       style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}

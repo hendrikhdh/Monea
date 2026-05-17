@@ -33,7 +33,7 @@ export function GoalsShell({ goals }: GoalsShellProps) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-8 px-6">
+    <div className="mx-auto w-full max-w-2xl space-y-8 px-6 lg:max-w-[1400px] lg:px-10">
       <AnimatedSection delay={0}>
         <div className="flex items-end justify-between">
           <h2 className="font-heading text-3xl font-extrabold tracking-tight text-foreground">
@@ -53,7 +53,7 @@ export function GoalsShell({ goals }: GoalsShellProps) {
           />
         </AnimatedSection>
       ) : (
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
           {goals.map((goal, i) => (
             <AnimatedSection key={goal.id} delay={0.1 + i * 0.1}>
               <GoalCard goal={goal} onClick={() => handleEdit(goal)} />

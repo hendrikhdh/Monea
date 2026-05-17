@@ -33,7 +33,7 @@ export function DashboardOnboarding({ name }: DashboardOnboardingProps) {
   const firstName = name?.split(' ')[0]
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-10 px-6">
+    <div className="mx-auto w-full max-w-2xl space-y-10 px-6 lg:max-w-3xl lg:px-10">
       <AnimatedSection delay={0}>
         <section className="relative overflow-hidden rounded-[3rem_1rem_4rem_3rem] bg-gradient-to-br from-primary to-primary-container p-8 text-primary-foreground shadow-xl">
           <div className="absolute -top-12 -right-12 h-56 w-56 rounded-full bg-secondary-container/40 blur-3xl" />

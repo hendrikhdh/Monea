@@ -33,8 +33,9 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Allow public routes and static assets
+  // Allow public routes (marketing landing + auth) and static assets
   if (
+    pathname === '/' ||
     publicRoutes.some((route) => pathname.startsWith(route)) ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/icons') ||

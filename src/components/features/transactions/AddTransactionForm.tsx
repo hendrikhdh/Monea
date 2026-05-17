@@ -5,6 +5,7 @@ import { Check, Trash2, Calendar, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { addTransaction, editTransaction, removeTransaction } from '@/app/(app)/transactions/actions'
 import type { Category, Goal, TransactionType, TransactionWithCategory } from '@/lib/types/database'
+import { useIsDesktop } from '@/lib/hooks/useIsDesktop'
 import { AmountDisplay } from './AmountDisplay'
 import { CategoryPicker } from './CategoryPicker'
 import { GoalPicker } from './GoalPicker'
@@ -53,6 +54,7 @@ function formatDateLabel(iso: string): string {
 
 export function AddTransactionForm({ categories, goals, transaction, onDone }: AddTransactionFormProps) {
   const isEdit = !!transaction
+  const isDesktop = useIsDesktop()
 
   const [type, setType] = useState<TransactionType>(transaction?.type ?? 'expense')
   const [cents, setCents] = useState(() => {
@@ -163,7 +165,7 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
   )
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <form action={action} className="flex flex-col items-center gap-4">
       {/* Type toggle */}
       <div className="flex gap-1 rounded-full bg-surface-container-low p-1">
         {(['expense', 'income', 'savings_deposit'] as const).map((t) => (
@@ -176,9 +178,9 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
               setGoalId(null)
             }}
             className={cn(
-              'rounded-full px-4 py-2 text-sm font-semibold transition-all active:scale-95',
+              'rounded-full px-4 py-2 text-sm font-semibold transition-all hover:bg-surface-container active:scale-95',
               type === t
-                ? 'bg-primary-container text-primary-foreground'
+                ? 'bg-primary-container text-primary-foreground hover:bg-primary-container'
                 : 'text-muted-foreground'
             )}
           >
@@ -187,8 +189,13 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
         ))}
       </div>
 
-      {/* Amount blob */}
-      <AmountDisplay cents={cents} type={type} />
+      {/* Amount blob — editable on desktop, read-only (numpad-driven) on mobile */}
+      <AmountDisplay
+        cents={cents}
+        type={type}
+        onChange={isDesktop ? setCents : undefined}
+        autoFocus={isDesktop && !isEdit}
+      />
 
       {/* Picker — Category for income/expense, Goal for savings */}
       {type === 'savings_deposit' ? (
@@ -210,6 +217,8 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value || todayIso())}
+            onClick={(e) => e.currentTarget.showPicker?.()}
+            onFocus={(e) => e.currentTarget.showPicker?.()}
             max={todayIso()}
             className="absolute inset-0 cursor-pointer opacity-0"
             aria-label="Datum"
@@ -239,13 +248,15 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
         )}
       </div>
 
-      {/* Numpad */}
-      <div className="w-full">
-        <NumericKeypad
-          onDigit={handleDigit}
-          onBackspace={handleBackspace}
-        />
-      </div>
+      {/* Numpad — mobile only; on desktop the amount is typed directly into AmountDisplay */}
+      {!isDesktop && (
+        <div className="w-full">
+          <NumericKeypad
+            onDigit={handleDigit}
+            onBackspace={handleBackspace}
+          />
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="flex w-full gap-3">
@@ -254,22 +265,20 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
             type="button"
             disabled={deletePending}
             onClick={() => deleteAction()}
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-destructive/20 text-destructive transition-all active:scale-95 disabled:opacity-40"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-destructive/20 text-destructive transition-all hover:bg-destructive/10 active:scale-95 disabled:opacity-40"
           >
             <Trash2 size={20} />
           </button>
         )}
-        <form action={action} className="flex-1">
-          <button
-            type="submit"
-            disabled={pending || !canSubmit}
-            className="flex h-14 w-full items-center justify-center gap-3 rounded-full bg-primary-container font-heading text-lg font-bold tracking-wide text-primary-foreground shadow-[0_15px_30px_rgba(62,39,35,0.2)] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:shadow-none"
-          >
-            <span>{pending ? 'Speichern…' : isEdit ? 'Aktualisieren' : 'Speichern'}</span>
-            {!pending && <Check size={20} />}
-          </button>
-        </form>
+        <button
+          type="submit"
+          disabled={pending || !canSubmit}
+          className="flex h-14 flex-1 items-center justify-center gap-3 rounded-full bg-primary-container font-heading text-lg font-bold tracking-wide text-primary-foreground shadow-[0_15px_30px_rgba(62,39,35,0.2)] transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-40 disabled:shadow-none"
+        >
+          <span>{pending ? 'Speichern…' : isEdit ? 'Aktualisieren' : 'Speichern'}</span>
+          {!pending && <Check size={20} />}
+        </button>
       </div>
-    </div>
+    </form>
   )
 }

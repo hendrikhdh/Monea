@@ -90,7 +90,7 @@ export function TransactionCard({
       type="button"
       onClick={() => onEdit?.(transaction)}
       className={cn(
-        'flex w-full items-center gap-4 p-4 text-left transition-all active:scale-[0.98]',
+        'flex w-full items-center gap-4 p-4 text-left transition-all hover:brightness-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]',
         BLOB_SHAPES[blobIndex],
         containerClass
       )}

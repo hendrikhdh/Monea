@@ -26,7 +26,7 @@ export function CategoryPicker({ categories, selected, onSelect }: CategoryPicke
       </p>
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto px-6 pt-2 pb-2 no-scrollbar snap-x snap-mandatory"
+        className="flex gap-3 overflow-x-auto px-6 pt-2 pb-2 no-scrollbar snap-x snap-mandatory lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible lg:px-0 lg:snap-none"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {categories.map((cat) => {

@@ -37,7 +37,7 @@ export function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-end justify-around bg-background/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex h-24 items-start justify-around bg-background/80 pt-2 backdrop-blur-md lg:hidden">
       {navItems.map(({ href, label, icon: Icon, shape }) => {
         const isActive = pathname === href
         return (
@@ -47,7 +47,7 @@ export function BottomNav() {
             prefetch
             aria-label={label}
             className={cn(
-              '-mb-3 flex h-14 w-14 items-center justify-center transition-[background-color,color] duration-150 active:scale-90',
+              'flex h-14 w-14 items-center justify-center transition-[background-color,color] duration-150 active:scale-90',
               isActive
                 ? cn('bg-secondary text-secondary-foreground', shape)
                 : 'rounded-full text-muted-foreground'

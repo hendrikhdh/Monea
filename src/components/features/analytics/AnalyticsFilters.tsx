@@ -34,8 +34,8 @@ export function AnalyticsFilters({
   return (
     <div className="space-y-4">
       {/* Period chips */}
-      <div className="-mx-6 overflow-x-auto px-6">
-        <div className="flex gap-2">
+      <div className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0">
+        <div className="flex gap-2 lg:flex-wrap">
           {PERIODS.map(({ value, label }) => {
             const isActive = period === value
             return (
@@ -57,8 +57,8 @@ export function AnalyticsFilters({
         </div>
       </div>
 
-      {/* Type toggle */}
-      <div className="flex gap-2 rounded-full bg-surface-container-low p-1">
+      {/* Type toggle (mobile only — desktop shows both side-by-side) */}
+      <div className="flex gap-2 rounded-full bg-surface-container-low p-1 lg:hidden">
         {(['expense', 'income'] as const).map((t) => {
           const isActive = type === t
           const Icon = t === 'expense' ? TrendingDown : TrendingUp
@@ -83,8 +83,8 @@ export function AnalyticsFilters({
 
       {/* Category multi-select chips */}
       {spending.length > 0 && (
-        <div className="-mx-6 overflow-x-auto px-6">
-          <div className="flex gap-2">
+        <div className="-mx-6 overflow-x-auto px-6 lg:mx-0 lg:overflow-visible lg:px-0">
+          <div className="flex gap-2 lg:flex-wrap">
             {spending.map((cat) => {
               const Icon = ICON_MAP[cat.icon]
               const isExcluded = excludedCategoryIds.has(cat.id)

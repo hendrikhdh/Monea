@@ -33,7 +33,7 @@ export function GoalPicker({ goals, selected, onSelect }: GoalPickerProps) {
         {selectedGoal ? selectedGoal.name : subtitle}
       </p>
       <div
-        className="flex gap-3 overflow-x-auto px-6 pt-2 pb-2 no-scrollbar snap-x snap-mandatory"
+        className="flex gap-3 overflow-x-auto px-6 pt-2 pb-2 no-scrollbar snap-x snap-mandatory lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:px-0 lg:snap-none"
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         {goals.map((goal) => {

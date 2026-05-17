@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useActionState } from 'react'
+import { useRef, useState, useActionState } from 'react'
 import { Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { addRecurring } from '@/app/(app)/transactions/actions'
@@ -10,7 +10,7 @@ import { ICON_MAP } from '@/components/features/categories/iconMap'
 interface AddRecurringFormProps {
   categories: Category[]
   goals: Goal[]
-  onDone: () => void
+  onDone?: () => void
 }
 
 const TYPE_LABEL: Record<TransactionType, string> = {
@@ -24,6 +24,7 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
   const [categoryId, setCategoryId] = useState('')
   const [goalId, setGoalId] = useState('')
   const [interval, setInterval] = useState<'weekly' | 'monthly' | 'yearly'>('monthly')
+  const formRef = useRef<HTMLFormElement>(null)
 
   const filteredCategories = categories.filter(
     (c) => c.type === type || c.type === 'both'
@@ -38,7 +39,15 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
         toast.error(result.error)
       } else {
         toast.success('Wiederkehrende Transaktion erstellt')
-        onDone()
+        if (onDone) {
+          onDone()
+        } else {
+          setType('expense')
+          setCategoryId('')
+          setGoalId('')
+          setInterval('monthly')
+          formRef.current?.reset()
+        }
       }
       return result
     },
@@ -49,7 +58,7 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
   const canSubmit = isDeposit ? !!goalId : true
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form ref={formRef} action={formAction} className="space-y-5">
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="category_id" value={isDeposit ? '' : categoryId} />
       <input type="hidden" name="goal_id" value={isDeposit ? goalId : ''} />

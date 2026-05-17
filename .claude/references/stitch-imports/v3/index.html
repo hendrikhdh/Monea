@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="de"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monéa | Your money — but elevated.</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&amp;family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&amp;family=Plus+Jakarta+Sans:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "deep-rose": "#d4a49a",
+                        "secondary-container": "#fadcd2",
+                        "on-primary-fixed": "#2b1613",
+                        "error": "#ba1a1a",
+                        "secondary": "#6f5a52",
+                        "on-secondary-fixed-variant": "#56423b",
+                        "card": "#f4f3f1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#9c7c77",
+                        "destructive": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#354b49",
+                        "on-secondary": "#ffffff",
+                        "muted-foreground": "#6f5a52",
+                        "background": "#faf9f6",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#fadcd2",
+                        "on-primary-fixed-variant": "#5b403c",
+                        "surface-bright": "#fff8f6",
+                        "border": "#d3c3c0",
+                        "inverse-primary": "#e3beb8",
+                        "on-error": "#ffffff",
+                        "outline-variant": "#d3c3c0",
+                        "soft-pink": "#ffdad4",
+                        "primary-fixed": "#ffdad5",
+                        "error-container": "#ffdad6",
+                        "surface-container": "#f4eceb",
+                        "on-secondary-fixed": "#271812",
+                        "success": "#34a853",
+                        "on-surface-variant": "#504442",
+                        "surface-dim": "#e0d8d7",
+                        "outline": "#827472",
+                        "on-background": "#1e1b1a",
+                        "tertiary-container": "#091f1e",
+                        "surface-tint": "#745753",
+                        "secondary-fixed-dim": "#ddc0b7",
+                        "inverse-surface": "#33302f",
+                        "primary-container": "#2b1613",
+                        "surface-container-high": "#eee6e5",
+                        "on-tertiary-container": "#728886",
+                        "primary-fixed-dim": "#e3beb8",
+                        "surface-variant": "#e8e1df",
+                        "tertiary-fixed-dim": "#b4cbc9",
+                        "surface-container-low": "#faf2f0",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#765f58",
+                        "inverse-on-surface": "#f7efee",
+                        "surface-container-highest": "#e8e1df",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#cfe7e5",
+                        "on-tertiary-fixed": "#091f1e",
+                        "surface": "#fff8f6",
+                        "on-surface": "#1e1b1a",
+                        "primary": "#000000",
+                        "foreground": "#1a1c1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "touch-target": "44px",
+                        "nav-item": "56px",
+                        "gutter-hero": "1.75rem",
+                        "gutter-mobile": "1.5rem",
+                        "section-gap": "2.5rem"
+                    },
+                    "fontFamily": {
+                        "body": ["Be Vietnam Pro"],
+                        "label-sm": ["Be Vietnam Pro"],
+                        "card-title": ["Plus Jakarta Sans"],
+                        "display-hero": ["Fraunces"],
+                        "eyebrow": ["Be Vietnam Pro"],
+                        "display-hero-mobile": ["Fraunces"],
+                        "price-lg": ["Fraunces"],
+                        "price-md": ["Fraunces"],
+                        "headline-section": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "label-sm": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "card-title": ["18px", { "lineHeight": "1.4", "fontWeight": "700" }],
+                        "display-hero": ["64px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "eyebrow": ["10px", { "lineHeight": "1", "letterSpacing": "0.2em", "fontWeight": "700" }],
+                        "display-hero-mobile": ["48px", { "lineHeight": "1.1", "fontWeight": "600" }],
+                        "price-lg": ["40px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "price-md": ["24px", { "lineHeight": "1", "fontWeight": "600" }],
+                        "headline-section": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .blob-1 { background-color: #f5c4b8; border-radius: 41% 59% 41% 59% / 46% 38% 62% 54%; }
+        .blob-2 { background-color: #d4a49a; border-radius: 61% 39% 51% 49% / 56% 48% 52% 44%; }
+        .blob-3 { background-color: #c9a69e; border-radius: 31% 69% 41% 59% / 46% 58% 42% 54%; }
+        .asymmetric-card { border-radius: 2rem 1rem 2.5rem 1.5rem; }
+        .asymmetric-card-alt { border-radius: 1.5rem 2.5rem 1rem 2rem; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased overflow-x-hidden selection:bg-secondary-container selection:text-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-background/70 backdrop-blur-xl dark:bg-background/70 transition-all duration-300 border-b-0 border-transparent">
+<div class="flex justify-between items-center px-6 py-4 md:px-20 w-full max-w-7xl mx-auto">
+<a class="font-display-hero text-2xl text-primary dark:text-primary lowercase tracking-tight" href="#">Monéa</a>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-sm text-label-sm uppercase tracking-widest hover:text-primary transition-colors duration-300" href="#product">Product</a>
+<a class="text-on-surface-variant font-medium font-label-sm text-label-sm uppercase tracking-widest hover:text-primary transition-colors duration-300" href="#features">Features</a>
+<a class="text-on-surface-variant font-medium font-label-sm text-label-sm uppercase tracking-widest hover:text-primary transition-colors duration-300" href="#journal">Journal</a>
+<a class="text-on-surface-variant font-medium font-label-sm text-label-sm uppercase tracking-widest hover:text-primary transition-colors duration-300" href="#pricing">Pricing</a>
+</div>
+<div class="hidden md:flex">
+<a class="bg-primary text-on-primary px-6 py-3 rounded-full font-label-sm text-label-sm hover:opacity-90 active:scale-[0.97] transition-all duration-300" href="#get-started">
+                    Get Started
+                </a>
+</div>
+<button class="md:hidden text-primary p-2 active:scale-[0.97] transition-transform">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+</div>
+</nav>
+<main class="pt-24 md:pt-32">
+<!-- Hero Section -->
+<section class="relative w-full max-w-7xl mx-auto px-6 md:px-20 py-12 md:py-24 overflow-hidden min-h-[80vh] flex items-center">
+<!-- Background Orbs -->
+<div class="absolute inset-0 overflow-hidden pointer-events-none opacity-40 blur-3xl z-0">
+<div class="blob-1 absolute top-0 -left-20 w-96 h-96 opacity-60"></div>
+<div class="blob-2 absolute bottom-20 left-1/3 w-80 h-80 opacity-50"></div>
+<div class="blob-3 absolute top-1/4 right-0 w-[500px] h-[500px] opacity-40"></div>
+</div>
+<div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="max-w-xl">
+<h1 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary mb-6 leading-tight">
+                        Your money —<br/>but elevated.
+                    </h1>
+<p class="font-body text-body text-on-surface-variant mb-10 text-lg md:text-xl max-w-md">
+                        Die Ruhe, die deine Finanzen brauchen. Behalte den Überblick über Ausgaben und Sparziele – ohne den Stress herkömmlicher Banking-Apps.
+                    </p>
+<div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+<a class="bg-[#271310] text-on-primary px-8 py-4 h-14 rounded-full font-label-sm text-label-sm flex items-center justify-center hover:opacity-90 active:scale-[0.97] transition-all duration-300 w-full sm:w-auto" href="#start">
+                            Kostenlos starten
+                        </a>
+<a class="text-primary font-label-sm text-label-sm flex items-center group active:scale-[0.97] transition-all duration-300 py-4" href="#how-it-works">
+                            So funktioniert's 
+                            <span class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+<div class="relative h-[500px] md:h-[600px] w-full flex items-center justify-center perspective-1000">
+<!-- Tilted Mockup Container -->
+<div class="relative w-full max-w-md transform rotate-y-[-10deg] rotate-x-[5deg] scale-95 md:scale-100 transition-transform duration-700 hover:rotate-y-0 hover:rotate-x-0">
+<!-- Balance Card -->
+<div class="absolute top-10 right-4 w-72 bg-card rounded-[2rem_1rem_2.5rem_1.5rem] p-6 z-20 backdrop-blur-sm border border-white/20">
+<p class="font-eyebrow text-eyebrow text-muted-foreground mb-2 uppercase">Total Balance</p>
+<p class="font-price-lg text-price-lg text-primary tabular-nums">€4.280,50</p>
+<div class="mt-4 flex items-center gap-2">
+<span class="bg-success/20 text-success px-2 py-1 rounded-full font-label-sm text-[10px] uppercase tracking-widest">+2.4%</span>
+<span class="text-xs text-muted-foreground">this month</span>
+</div>
+</div>
+<!-- Motivation Card -->
+<div class="absolute top-48 left-0 w-64 bg-secondary-container rounded-[1.5rem_2rem_1rem_2.5rem] p-5 z-10">
+<div class="flex items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-[#f5c4b8] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-xl">auto_awesome</span>
+</div>
+<div>
+<p class="font-card-title text-card-title text-primary mb-1 text-sm">On Track</p>
+<p class="font-body text-xs text-on-surface-variant">You're hitting your monthly goals beautifully.</p>
+</div>
+</div>
+</div>
+<!-- Goal Card -->
+<div class="absolute bottom-10 right-10 w-80 bg-card rounded-[2.5rem_1.5rem_2rem_1rem] p-6 z-30">
+<div class="flex justify-between items-end mb-4">
+<div>
+<p class="font-eyebrow text-eyebrow text-muted-foreground mb-1 uppercase">Paris Trip</p>
+<p class="font-price-md text-price-md text-primary tabular-nums">€1.200</p>
+</div>
+<span class="material-symbols-outlined text-muted-foreground">flight_takeoff</span>
+</div>
+<div class="w-full h-2 bg-surface-variant rounded-full overflow-hidden">
+<div class="w-[65%] h-full bg-primary rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="w-full max-w-7xl mx-auto px-6 md:px-20 py-20 md:py-32" id="features">
+<div class="mb-16">
+<span class="font-eyebrow text-eyebrow text-muted-foreground uppercase tracking-[0.2em] block mb-4">FEATURES</span>
+<h2 class="font-headline-section text-headline-section text-primary max-w-2xl">Was Monéa kann</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+<!-- Feature 1 -->
+<div class="asymmetric-card bg-card p-8 md:p-10 active:scale-[0.98] transition-transform duration-300 hover:bg-[#f2efe8]">
+<div class="w-12 h-12 blob-1 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary">visibility</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Alles im Blick</h3>
+<p class="font-body text-body text-on-surface-variant">Ein ruhiges Dashboard, das dir genau zeigt, was du wissen musst. Keine blinkenden roten Zahlen, nur klare Fakten.</p>
+</div>
+<!-- Feature 2 -->
+<div class="asymmetric-card-alt bg-card p-8 md:p-10 active:scale-[0.98] transition-transform duration-300 hover:bg-[#f2efe8]">
+<div class="w-12 h-12 blob-2 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary">sync_alt</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Transaktionen ohne Stress</h3>
+<p class="font-body text-body text-on-surface-variant">Automatische Kategorisierung, die Sinn macht. Schöne, aufgeräumte Listen, die sich lesen lassen wie ein Magazin.</p>
+</div>
+<!-- Feature 3 -->
+<div class="asymmetric-card-alt bg-card p-8 md:p-10 active:scale-[0.98] transition-transform duration-300 hover:bg-[#f2efe8]">
+<div class="w-12 h-12 blob-3 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary">image</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Sparziele mit Bild</h3>
+<p class="font-body text-body text-on-surface-variant">Hinterlege editoriale Fotos für deine Ziele. Denn Sparen für Paris fühlt sich besser an, wenn man Paris sieht.</p>
+</div>
+<!-- Feature 4 -->
+<div class="asymmetric-card bg-card p-8 md:p-10 active:scale-[0.98] transition-transform duration-300 hover:bg-[#f2efe8]">
+<div class="w-12 h-12 blob-1 flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-primary">pie_chart</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Analyse, die wirklich hilft</h3>
+<p class="font-body text-body text-on-surface-variant">Tiefgreifende, aber sanft präsentierte Einblicke in dein Verhalten. Wir urteilen nicht, wir zeigen Wege auf.</p>
+</div>
+</div>
+</section>
+<!-- How it Works Section -->
+<section class="w-full bg-surface-container-low py-20 md:py-32" id="how-it-works">
+<div class="max-w-7xl mx-auto px-6 md:px-20">
+<h2 class="font-headline-section text-headline-section text-primary text-center mb-16 md:mb-24">In drei Schritten zu mehr Klarheit</h2>
+<div class="relative grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+<!-- Connecting Lines (Web) -->
+<div class="hidden md:block absolute top-12 left-[16%] right-[16%] h-[1px] bg-border z-0"></div>
+<!-- Step 1 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="bg-background w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(250,249,246,1)]">
+<span class="font-display-hero text-display-hero text-deep-rose tabular-nums leading-none">01</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Anmelden</h3>
+<p class="font-body text-body text-on-surface-variant px-4">Erstelle deinen Account in Sekunden. Sicher, privat und völlig unkompliziert.</p>
+</div>
+<!-- Step 2 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="bg-background w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(250,249,246,1)]">
+<span class="font-display-hero text-display-hero text-deep-rose tabular-nums leading-none">02</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Verbinden</h3>
+<p class="font-body text-body text-on-surface-variant px-4">Verknüpfe deine bestehenden Konten nahtlos. Wir importieren deine Historie elegant.</p>
+</div>
+<!-- Step 3 -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="bg-background w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(250,249,246,1)]">
+<span class="font-display-hero text-display-hero text-deep-rose tabular-nums leading-none">03</span>
+</div>
+<h3 class="font-card-title text-card-title text-primary mb-3">Wachsen</h3>
+<p class="font-body text-body text-on-surface-variant px-4">Lehne dich zurück und sieh zu, wie deine finanziellen Ziele Gestalt annehmen.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Showcase Section -->
+<section class="w-full max-w-7xl mx-auto px-6 md:px-20 py-20 md:py-32">
+<h2 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary text-center mb-16 max-w-3xl mx-auto">
+                Made for the way you actually live.
+            </h2>
+<div class="relative w-full aspect-[4/3] md:aspect-[21/9] bg-card rounded-[2rem] md:rounded-[3rem] overflow-hidden flex items-center justify-center">
+<!-- Abstract Showcase Layout representing the UI -->
+<div class="absolute inset-0 p-8 md:p-12 grid grid-cols-1 md:grid-cols-3 gap-6 opacity-90">
+<!-- Analytics Column -->
+<div class="hidden md:flex flex-col gap-6">
+<div class="bg-background rounded-[1.5rem_2rem_1rem_2rem] p-6 h-64 flex flex-col items-center justify-center">
+<!-- Placeholder for Donut Chart -->
+<div class="w-32 h-32 rounded-full border-[16px] border-deep-rose/30 relative flex items-center justify-center">
+<div class="absolute inset-[-16px] rounded-full border-[16px] border-secondary border-l-transparent border-b-transparent transform rotate-45"></div>
+<span class="font-price-md text-price-md text-primary">€1k</span>
+</div>
+<p class="mt-4 font-label-sm text-label-sm text-muted-foreground uppercase tracking-widest">Spending</p>
+</div>
+<div class="bg-secondary-container rounded-[2rem_1rem_1.5rem_2rem] p-6 grow">
+<p class="font-card-title text-card-title text-primary">Lifestyle</p>
+<p class="font-price-md text-price-md text-primary mt-2">€450</p>
+</div>
+</div>
+<!-- Goals Column -->
+<div class="flex flex-col gap-6 md:col-span-1">
+<div class="bg-background rounded-[2.5rem_1.5rem_2.5rem_1rem] overflow-hidden h-48 relative">
+<div class="absolute inset-0 bg-secondary/20" style="background-image: url('https://www.gstatic.com/labs-code/stitch/stitch-placeholder-300x300.svg'); background-size: cover; background-position: center;"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+<div class="absolute bottom-4 left-4 right-4">
+<p class="font-display-hero text-2xl text-white">Paris</p>
+<div class="w-full h-1 bg-white/30 rounded-full mt-2">
+<div class="w-[80%] h-full bg-white rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="bg-background rounded-[1.5rem_2.5rem_1rem_2.5rem] p-6 grow">
+<p class="font-eyebrow text-eyebrow text-muted-foreground mb-4 uppercase">Recent</p>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="font-body text-sm">Aesop</span>
+<span class="font-label-sm text-sm">-€45.00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body text-sm">Café Verlet</span>
+<span class="font-label-sm text-sm">-€12.50</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Transactions Column -->
+<div class="hidden md:flex flex-col gap-6">
+<div class="bg-background rounded-[2rem_2rem_1.5rem_2.5rem] p-6 h-full">
+<h3 class="font-card-title text-card-title text-primary mb-6">Transaktionen</h3>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant"></div>
+<div class="grow">
+<p class="font-body text-sm text-primary">Freelance Invoice</p>
+<p class="font-label-sm text-[10px] text-muted-foreground uppercase">Income</p>
+</div>
+<p class="font-label-sm text-success">+€1,200</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant"></div>
+<div class="grow">
+<p class="font-body text-sm text-primary">Céline</p>
+<p class="font-label-sm text-[10px] text-muted-foreground uppercase">Shopping</p>
+</div>
+<p class="font-label-sm text-primary">-€350</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Testimonial Section -->
+<section class="w-full max-w-5xl mx-auto px-6 md:px-20 py-12 md:py-24">
+<div class="bg-secondary-container rounded-[3rem_1rem_4rem_2rem] p-10 md:p-20 text-center relative overflow-hidden">
+<span class="material-symbols-outlined absolute top-10 left-10 text-6xl text-primary/10 rotate-180">format_quote</span>
+<p class="font-display-hero-mobile md:font-display-hero text-2xl md:text-4xl text-primary italic leading-relaxed mb-8 relative z-10">
+                    "Endlich eine Finanz-App, die sich so hochwertig anfühlt wie der Rest meines Lebens."
+                </p>
+<p class="font-label-sm text-label-sm text-on-secondary-fixed-variant uppercase tracking-widest relative z-10">
+                    Lena, 28 – Berlin
+                </p>
+</div>
+</section>
+<!-- Final CTA Section -->
+<section class="w-full bg-card py-24 md:py-32 mt-12 rounded-t-[3rem] md:rounded-t-[4rem]">
+<div class="max-w-4xl mx-auto px-6 text-center">
+<h2 class="font-display-hero-mobile md:font-display-hero text-display-hero-mobile md:text-display-hero text-primary mb-6">
+                    Bereit, deinen Überblick zu finden?
+                </h2>
+<p class="font-body text-body text-on-surface-variant text-lg md:text-xl mb-12 max-w-2xl mx-auto">
+                    Schließe dich tausenden Frauen an, die ihre Finanzen mit Eleganz verwalten.
+                </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+<a class="bg-primary text-on-primary px-10 py-4 h-14 rounded-full font-label-sm text-label-sm flex items-center justify-center hover:opacity-90 active:scale-[0.97] transition-all duration-300 w-full sm:w-auto" href="#start">
+                        Kostenlos starten
+                    </a>
+<a class="text-primary font-label-sm text-label-sm flex items-center group active:scale-[0.97] transition-all duration-300 py-4 w-full sm:w-auto justify-center" href="#learn-more">
+                        Mehr erfahren
+                        <span class="material-symbols-outlined ml-2 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full rounded-t-[2rem] md:rounded-t-[4rem] bg-surface-container dark:bg-surface-container -mt-10 relative z-10 border-t border-transparent shadow-[0_-10px_30px_rgba(244,236,235,1)]">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-section-gap px-6 py-section-gap md:px-20 w-full max-w-7xl mx-auto">
+<div class="col-span-2 md:col-span-1 mb-8 md:mb-0">
+<a class="font-display-hero text-xl text-primary dark:text-primary lowercase tracking-tight block mb-4" href="#">Monéa</a>
+<p class="font-body text-sm text-muted-foreground">© 2024 Monéa Studio.<br/>All rights reserved.</p>
+</div>
+<div class="flex flex-col space-y-4">
+<span class="font-eyebrow text-eyebrow text-primary uppercase tracking-widest mb-2">Product</span>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">Features</a>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">Security</a>
+</div>
+<div class="flex flex-col space-y-4">
+<span class="font-eyebrow text-eyebrow text-primary uppercase tracking-widest mb-2">Company</span>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">About</a>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">Press</a>
+</div>
+<div class="flex flex-col space-y-4">
+<span class="font-eyebrow text-eyebrow text-primary uppercase tracking-widest mb-2">Legal</span>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">Privacy</a>
+<a class="font-label-sm text-label-sm text-muted-foreground hover:text-primary transition-colors duration-200 active:scale-[0.98]" href="#">Terms</a>
+</div>
+</div>
+</footer>
+</body></html>

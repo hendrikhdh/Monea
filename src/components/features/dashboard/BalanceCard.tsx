@@ -10,7 +10,7 @@ export function BalanceCard({ balance }: BalanceCardProps) {
   return (
     <Link
       href="/portfolio"
-      className="group flex items-center justify-between rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container px-6 py-5 transition-all active:scale-[0.98]"
+      className="group flex items-center justify-between rounded-[2rem_1rem_2.5rem_1.5rem] bg-surface-container px-6 py-5 transition-all hover:bg-surface-container-high focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]"
     >
       <div>
         <p className="font-sans text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant">
