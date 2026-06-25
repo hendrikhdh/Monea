@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useCallback, useEffect } from 'react'
+import { useActionState, useState, useCallback } from 'react'
 import { Check, Trash2, Calendar, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { addTransaction, editTransaction, removeTransaction } from '@/app/(app)/transactions/actions'
@@ -67,7 +67,10 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
   const [note, setNote] = useState<string>(transaction?.note ?? '')
   const [noteEditing, setNoteEditing] = useState<boolean>(!!transaction?.note)
 
-  useEffect(() => {
+  // Re-sync local state when the edited transaction changes (sheet reused across opens)
+  const [prevTransaction, setPrevTransaction] = useState(transaction)
+  if (transaction !== prevTransaction) {
+    setPrevTransaction(transaction)
     if (transaction) {
       setType(transaction.type)
       setCents(Math.round(transaction.amount * 100))
@@ -85,7 +88,7 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
       setNote('')
       setNoteEditing(false)
     }
-  }, [transaction])
+  }
 
   const filteredCategories = categories.filter(
     (c) => c.type === type || c.type === 'both'
@@ -103,7 +106,7 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
   }, [])
 
   const [, action, pending] = useActionState(
-    async (_prev: unknown) => {
+    async () => {
       const amount = (cents / 100).toFixed(2)
       const formData = new FormData()
       formData.set('amount', amount)
@@ -144,7 +147,7 @@ export function AddTransactionForm({ categories, goals, transaction, onDone }: A
   )
 
   const [, deleteAction, deletePending] = useActionState(
-    async (_prev: unknown) => {
+    async () => {
       if (!transaction) return
       const formData = new FormData()
       formData.set('id', transaction.id)

@@ -59,20 +59,18 @@ export function AnalyticsShell({
     const controller = new AbortController()
 
     if (isFirstRender) {
+      // Background prefetch of the inactive type — no loading indicator needed
       const otherType: AnalyticsType = initialType === 'expense' ? 'income' : 'expense'
-      setLoading(true)
       fetch(`/api/analytics?period=${period}&type=${otherType}`, { signal: controller.signal })
         .then((r) => (r.ok ? r.json() : Promise.reject(r)))
         .then((d) => {
           setData((prev) => ({ ...prev, [otherType]: d.spending }))
         })
         .catch(() => {})
-        .finally(() => setLoading(false))
 
       return () => controller.abort()
     }
 
-    setLoading(true)
     Promise.all([
       fetch(`/api/analytics?period=${period}&type=expense`, { signal: controller.signal }).then((r) =>
         r.ok ? r.json() : Promise.reject(r)
@@ -89,6 +87,14 @@ export function AnalyticsShell({
 
     return () => controller.abort()
   }, [period, initialType])
+
+  // Loading is set here (event handler) rather than in the effect to avoid a
+  // synchronous setState during the effect body. The effect clears it in `finally`.
+  const handlePeriodChange = (next: AnalyticsPeriod) => {
+    if (next === period) return
+    setLoading(true)
+    setPeriod(next)
+  }
 
   const activeSpending = type === 'expense' ? data.expense : data.income
 
@@ -131,7 +137,7 @@ export function AnalyticsShell({
           type={type}
           spending={activeSpending}
           excludedCategoryIds={excluded}
-          onPeriodChange={setPeriod}
+          onPeriodChange={handlePeriodChange}
           onTypeChange={setType}
           onCategoryToggle={handleCategoryToggle}
         />

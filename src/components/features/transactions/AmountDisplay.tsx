@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { TransactionType } from '@/lib/types/database'
 
 interface AmountDisplayProps {
@@ -81,12 +81,15 @@ function EditableAmount({
 }) {
   const [raw, setRaw] = useState(() => centsToRawInput(cents))
   const [focused, setFocused] = useState(false)
+  const [prevCents, setPrevCents] = useState(cents)
 
-  useEffect(() => {
+  // Re-sync the input when `cents` changes externally (not from this input's own typing)
+  if (cents !== prevCents) {
+    setPrevCents(cents)
     if (parseInputToCents(raw) !== cents) {
       setRaw(centsToRawInput(cents))
     }
-  }, [cents, raw])
+  }
 
   const display = focused ? raw : cents > 0 ? formatCents(cents) : ''
 

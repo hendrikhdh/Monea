@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState } from 'react'
 import { Check, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { addCategory, editCategory, removeCategory } from '@/app/(app)/categories/actions'
@@ -27,7 +27,10 @@ export function AddCategoryForm({ category, onDone }: AddCategoryFormProps) {
   const [selectedColor, setSelectedColor] = useState(category?.color ?? PRESET_COLORS[0])
   const [showIcons, setShowIcons] = useState(false)
 
-  useEffect(() => {
+  // Re-sync local state when the edited category changes (sheet reused across opens)
+  const [prevCategory, setPrevCategory] = useState(category)
+  if (category !== prevCategory) {
+    setPrevCategory(category)
     if (category) {
       setName(category.name)
       setSelectedType(category.type)
@@ -39,7 +42,7 @@ export function AddCategoryForm({ category, onDone }: AddCategoryFormProps) {
       setSelectedIcon('Tag')
       setSelectedColor(PRESET_COLORS[0])
     }
-  }, [category])
+  }
 
   const [state, action, pending] = useActionState(
     async (_prev: unknown, formData: FormData) => {
@@ -71,7 +74,7 @@ export function AddCategoryForm({ category, onDone }: AddCategoryFormProps) {
   )
 
   const [, deleteAction, deletePending] = useActionState(
-    async (_prev: unknown) => {
+    async () => {
       if (!category) return
       const formData = new FormData()
       formData.set('id', category.id)

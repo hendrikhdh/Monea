@@ -142,7 +142,7 @@ export function AddGoalForm({ goal, onDone }: AddGoalFormProps) {
   )
 
   const [, deleteAction, deletePending] = useActionState(
-    async (_prev: unknown) => {
+    async () => {
       if (!goal) return
       const formData = new FormData()
       formData.set('id', goal.id)

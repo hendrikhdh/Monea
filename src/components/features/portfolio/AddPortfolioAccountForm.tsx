@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState } from 'react'
 import { Check, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { addAccount, editAccount, removeAccount } from '@/app/(app)/portfolio/actions'
@@ -33,7 +33,10 @@ export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccount
   const [selectedColor, setSelectedColor] = useState(account?.color ?? PRESET_COLORS[0])
   const [showIcons, setShowIcons] = useState(false)
 
-  useEffect(() => {
+  // Re-sync local state when the edited account changes (sheet reused across opens)
+  const [prevAccount, setPrevAccount] = useState(account)
+  if (account !== prevAccount) {
+    setPrevAccount(account)
     if (account) {
       setName(account.name)
       setAmount(String(account.current_amount))
@@ -47,7 +50,7 @@ export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccount
       setSelectedIcon('Wallet')
       setSelectedColor(PRESET_COLORS[0])
     }
-  }, [account])
+  }
 
   const [state, action, pending] = useActionState(
     async (_prev: unknown, formData: FormData) => {

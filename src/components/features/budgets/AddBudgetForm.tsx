@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState } from 'react'
 import { Check, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { saveBudget, removeBudget } from '@/app/(app)/budgets/actions'
@@ -38,14 +38,17 @@ export function AddBudgetForm({
   )
   const [amount, setAmount] = useState(budget ? String(budget.amount) : '')
 
-  useEffect(() => {
+  // Re-sync local state when the edited budget changes (sheet reused across opens)
+  const [prevBudget, setPrevBudget] = useState(budget)
+  if (budget !== prevBudget) {
+    setPrevBudget(budget)
     if (budget) {
       setCategoryId(budget.category_id)
       setAmount(String(budget.amount))
     } else {
       setAmount('')
     }
-  }, [budget])
+  }
 
   const [state, action, pending] = useActionState(
     async (_prev: unknown, formData: FormData) => {

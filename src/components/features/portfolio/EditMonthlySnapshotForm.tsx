@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState, useEffect } from 'react'
+import { useActionState, useState } from 'react'
 import { Check, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { saveCustomMonthAction, unfreezeMonthAction } from '@/app/(app)/portfolio/actions'
@@ -31,9 +31,13 @@ export function EditMonthlySnapshotForm({
 
   const [amount, setAmount] = useState(initial.toFixed(2))
 
-  useEffect(() => {
+  // Re-sync the input when a different month/value is selected (sheet reused across opens)
+  const syncKey = `${year}-${month}-${customAmount}-${liveAmount}`
+  const [prevSyncKey, setPrevSyncKey] = useState(syncKey)
+  if (syncKey !== prevSyncKey) {
+    setPrevSyncKey(syncKey)
     setAmount((customAmount !== null ? customAmount : liveAmount).toFixed(2))
-  }, [year, month, customAmount, liveAmount])
+  }
 
   const [, saveAction, savePending] = useActionState(
     async (_prev: unknown, formData: FormData) => {
