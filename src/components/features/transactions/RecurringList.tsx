@@ -18,9 +18,10 @@ const INTERVAL_LABELS: Record<string, string> = {
 
 interface RecurringListProps {
   items: RecurringTransactionWithCategory[]
+  onEdit?: (item: RecurringTransactionWithCategory) => void
 }
 
-export function RecurringList({ items }: RecurringListProps) {
+export function RecurringList({ items, onEdit }: RecurringListProps) {
   if (items.length === 0) {
     return (
       <EmptyState
@@ -35,13 +36,13 @@ export function RecurringList({ items }: RecurringListProps) {
   return (
     <div className="space-y-3">
       {items.map((item) => (
-        <RecurringRow key={item.id} item={item} />
+        <RecurringRow key={item.id} item={item} onEdit={onEdit} />
       ))}
     </div>
   )
 }
 
-function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
+function RecurringRow({ item, onEdit }: { item: RecurringTransactionWithCategory; onEdit?: (item: RecurringTransactionWithCategory) => void }) {
   const isDeposit = item.type === 'savings_deposit'
   const Icon = !isDeposit && item.category ? ICON_MAP[item.category.icon] : null
   const color = item.category?.color ?? '#888'
@@ -73,40 +74,46 @@ function RecurringRow({ item }: { item: RecurringTransactionWithCategory }) {
 
   return (
     <div className={cn(
-      'flex items-center gap-4 rounded-xl bg-surface-container-low p-4',
+      'flex items-center gap-2 rounded-xl bg-surface-container-low p-4 transition-all',
       !item.is_active && 'opacity-50'
     )}>
-      <div
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
-        style={{ backgroundColor: isDeposit ? undefined : color + '20' }}
+      <button
+        type="button"
+        onClick={() => onEdit?.(item)}
+        className="flex min-w-0 flex-1 items-center gap-4 rounded-lg text-left transition-all hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 active:scale-[0.99]"
       >
-        {isDeposit ? (
-          <Target size={20} className="text-primary" />
-        ) : Icon ? (
-          <Icon size={20} style={{ color }} />
-        ) : null}
-      </div>
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full"
+          style={{ backgroundColor: isDeposit ? undefined : color + '20' }}
+        >
+          {isDeposit ? (
+            <Target size={20} className="text-primary" />
+          ) : Icon ? (
+            <Icon size={20} style={{ color }} />
+          ) : null}
+        </div>
 
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-base font-semibold text-foreground">
-          {label}
-        </p>
-        <p className="text-xs text-on-surface-variant">
-          {INTERVAL_LABELS[item.interval]} · {new Date(item.next_due).toLocaleDateString('de-DE')}
-        </p>
-        {item.note && (
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.note}</p>
-        )}
-      </div>
+        <div className="flex-1 min-w-0">
+          <p className="truncate text-base font-semibold text-foreground">
+            {label}
+          </p>
+          <p className="text-xs text-on-surface-variant">
+            {INTERVAL_LABELS[item.interval]} · {new Date(item.next_due).toLocaleDateString('de-DE')}
+          </p>
+          {item.note && (
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.note}</p>
+          )}
+        </div>
 
-      <p
-        className={cn(
-          'font-display text-lg font-semibold tabular-nums',
-          item.type === 'income' ? 'text-success' : isDeposit ? 'text-primary' : 'text-foreground'
-        )}
-      >
-        {formatted}
-      </p>
+        <p
+          className={cn(
+            'font-display text-lg font-semibold tabular-nums',
+            item.type === 'income' ? 'text-success' : isDeposit ? 'text-primary' : 'text-foreground'
+          )}
+        >
+          {formatted}
+        </p>
+      </button>
 
       <div className="flex items-center gap-1">
         <form action={toggleAction}>

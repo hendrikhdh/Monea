@@ -18,6 +18,20 @@ interface RecurringViewProps {
 
 export function RecurringView({ items, categories, goals, accounts }: RecurringViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [editItem, setEditItem] = useState<RecurringTransactionWithCategory | null>(null)
+
+  const handleNew = () => {
+    setEditItem(null)
+    setSheetOpen(true)
+  }
+  const handleEdit = (item: RecurringTransactionWithCategory) => {
+    setEditItem(item)
+    setSheetOpen(true)
+  }
+  const handleClose = () => {
+    setSheetOpen(false)
+    setEditItem(null)
+  }
 
   return (
     <>
@@ -33,7 +47,7 @@ export function RecurringView({ items, categories, goals, accounts }: RecurringV
 
           <div className="pt-6">
             <AnimatedSection delay={0.05}>
-              <RecurringList items={items} />
+              <RecurringList items={items} onEdit={handleEdit} />
             </AnimatedSection>
           </div>
         </div>
@@ -51,22 +65,23 @@ export function RecurringView({ items, categories, goals, accounts }: RecurringV
 
       {/* FAB (mobile only) */}
       <button
-        onClick={() => setSheetOpen(true)}
+        onClick={handleNew}
         aria-label="Wiederkehrende Transaktion hinzufügen"
         className="fixed bottom-28 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-container text-primary-foreground shadow-lg transition-all active:scale-90 lg:hidden"
       >
         <Plus size={24} />
       </button>
 
-      <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
+      <BottomSheet open={sheetOpen} onClose={handleClose}>
         <h3 className="mb-4 text-center font-heading text-lg font-bold">
-          Neue wiederkehrende Transaktion
+          {editItem ? 'Wiederkehrende bearbeiten' : 'Neue wiederkehrende Transaktion'}
         </h3>
         <AddRecurringForm
           categories={categories}
           goals={goals}
           accounts={accounts}
-          onDone={() => setSheetOpen(false)}
+          recurring={editItem}
+          onDone={handleClose}
         />
       </BottomSheet>
     </>

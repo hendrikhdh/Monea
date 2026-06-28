@@ -138,6 +138,49 @@ export async function addRecurring(formData: FormData) {
   return { success: true }
 }
 
+export async function editRecurring(formData: FormData) {
+  const id = formData.get('id') as string
+  if (!id) return { error: 'ID fehlt.' }
+
+  const categoryId = formData.get('category_id') as string
+  const goalId = formData.get('goal_id') as string
+  const accountId = formData.get('account_id') as string
+
+  const result = recurringSchema.safeParse({
+    amount: formData.get('amount'),
+    type: formData.get('type'),
+    category_id: categoryId || null,
+    goal_id: goalId || null,
+    account_id: accountId || null,
+    interval: formData.get('interval'),
+    start_date: formData.get('start_date'),
+    note: formData.get('note'),
+  })
+
+  if (!result.success) {
+    return { error: result.error.issues[0].message }
+  }
+
+  try {
+    await updateRecurring(id, {
+      amount: result.data.amount,
+      type: result.data.type,
+      category_id: result.data.category_id,
+      goal_id: result.data.goal_id,
+      account_id: result.data.account_id ?? null,
+      note: result.data.note,
+      interval: result.data.interval,
+    })
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Fehler beim Aktualisieren.' }
+  }
+
+  revalidatePath('/transactions')
+  revalidatePath('/')
+  revalidatePath('/goals')
+  return { success: true }
+}
+
 export async function toggleRecurring(formData: FormData) {
   const id = formData.get('id') as string
   const isActive = formData.get('is_active') === 'true'
