@@ -14,6 +14,7 @@ const LABEL: Record<TransactionType, string> = {
   income: 'Einnahme',
   expense: 'Ausgabe',
   savings_deposit: 'Spareinlage',
+  transfer: 'Transfer',
 }
 
 const MAX_CENTS = 9999999

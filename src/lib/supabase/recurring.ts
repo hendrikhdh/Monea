@@ -13,7 +13,7 @@ export async function getRecurringTransactions(): Promise<RecurringTransactionWi
 }
 
 export async function createRecurring(
-  recurring: Pick<RecurringTransaction, 'category_id' | 'goal_id' | 'amount' | 'type' | 'note' | 'interval' | 'start_date'>
+  recurring: Pick<RecurringTransaction, 'category_id' | 'goal_id' | 'account_id' | 'amount' | 'type' | 'note' | 'interval' | 'start_date'>
 ): Promise<RecurringTransaction> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -35,7 +35,7 @@ export async function createRecurring(
 
 export async function updateRecurring(
   id: string,
-  updates: Partial<Pick<RecurringTransaction, 'amount' | 'category_id' | 'goal_id' | 'type' | 'note' | 'interval' | 'is_active'>>
+  updates: Partial<Pick<RecurringTransaction, 'amount' | 'category_id' | 'goal_id' | 'account_id' | 'type' | 'note' | 'interval' | 'is_active'>>
 ): Promise<RecurringTransaction> {
   const supabase = await createClient()
   const { data, error } = await supabase
@@ -132,6 +132,7 @@ export async function processRecurringTransactions(): Promise<number> {
           user_id: item.user_id,
           category_id: item.category_id,
           goal_id: item.goal_id,
+          account_id: item.account_id,
           amount: item.amount,
           type: item.type,
           date: txDate,

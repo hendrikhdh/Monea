@@ -5,7 +5,9 @@ export async function getTransactions(limit = 50): Promise<TransactionWithCatego
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('transactions')
-    .select('*, category:categories(*), goal:goals(id, name)')
+    .select(
+      '*, category:categories(*), goal:goals(id, name), account:portfolio_accounts!account_id(id, name, icon, color, type), to_account:portfolio_accounts!to_account_id(id, name, icon, color, type)'
+    )
     .order('date', { ascending: false })
     .limit(limit)
 
@@ -86,7 +88,7 @@ export async function getSpendingByCategory(year: number, month: number) {
 }
 
 export async function createTransaction(
-  tx: Pick<Transaction, 'category_id' | 'goal_id' | 'amount' | 'type' | 'date' | 'note'>
+  tx: Pick<Transaction, 'category_id' | 'goal_id' | 'account_id' | 'to_account_id' | 'amount' | 'type' | 'date' | 'note'>
 ): Promise<Transaction> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -105,7 +107,7 @@ export async function createTransaction(
 
 export async function updateTransaction(
   id: string,
-  tx: Partial<Pick<Transaction, 'category_id' | 'goal_id' | 'amount' | 'type' | 'date' | 'note'>>
+  tx: Partial<Pick<Transaction, 'category_id' | 'goal_id' | 'account_id' | 'to_account_id' | 'amount' | 'type' | 'date' | 'note'>>
 ): Promise<Transaction> {
   const supabase = await createClient()
   const { data, error } = await supabase

@@ -7,15 +7,16 @@ import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { RecurringList } from './RecurringList'
 import { AddRecurringForm } from './AddRecurringForm'
 import { TransactionTabs } from './TransactionTabs'
-import type { Category, Goal, RecurringTransactionWithCategory } from '@/lib/types/database'
+import type { Category, Goal, PortfolioAccount, RecurringTransactionWithCategory } from '@/lib/types/database'
 
 interface RecurringViewProps {
   items: RecurringTransactionWithCategory[]
   categories: Category[]
   goals: Goal[]
+  accounts: PortfolioAccount[]
 }
 
-export function RecurringView({ items, categories, goals }: RecurringViewProps) {
+export function RecurringView({ items, categories, goals, accounts }: RecurringViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
 
   return (
@@ -43,7 +44,7 @@ export function RecurringView({ items, categories, goals }: RecurringViewProps) 
             <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Neue wiederkehrende
             </p>
-            <AddRecurringForm categories={categories} goals={goals} />
+            <AddRecurringForm categories={categories} goals={goals} accounts={accounts} />
           </div>
         </aside>
       </div>
@@ -64,6 +65,7 @@ export function RecurringView({ items, categories, goals }: RecurringViewProps) 
         <AddRecurringForm
           categories={categories}
           goals={goals}
+          accounts={accounts}
           onDone={() => setSheetOpen(false)}
         />
       </BottomSheet>

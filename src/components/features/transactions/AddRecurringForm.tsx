@@ -4,12 +4,14 @@ import { useRef, useState, useActionState } from 'react'
 import { Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { addRecurring } from '@/app/(app)/transactions/actions'
-import type { Category, Goal, TransactionType } from '@/lib/types/database'
+import type { Category, Goal, PortfolioAccount, TransactionType } from '@/lib/types/database'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
+import { PORTFOLIO_ICON_MAP } from '@/components/features/portfolio/portfolioIcons'
 
 interface AddRecurringFormProps {
   categories: Category[]
   goals: Goal[]
+  accounts: PortfolioAccount[]
   onDone?: () => void
 }
 
@@ -17,12 +19,15 @@ const TYPE_LABEL: Record<TransactionType, string> = {
   expense: 'Ausgabe',
   income: 'Einnahme',
   savings_deposit: 'Sparen',
+  transfer: 'Transfer',
 }
 
-export function AddRecurringForm({ categories, goals, onDone }: AddRecurringFormProps) {
+export function AddRecurringForm({ categories, goals, accounts, onDone }: AddRecurringFormProps) {
+  const primaryId = accounts.find((a) => a.is_primary)?.id ?? accounts[0]?.id ?? ''
   const [type, setType] = useState<TransactionType>('expense')
   const [categoryId, setCategoryId] = useState('')
   const [goalId, setGoalId] = useState('')
+  const [accountId, setAccountId] = useState(primaryId)
   const [interval, setInterval] = useState<'weekly' | 'monthly' | 'yearly'>('monthly')
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -45,6 +50,7 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
           setType('expense')
           setCategoryId('')
           setGoalId('')
+          setAccountId(primaryId)
           setInterval('monthly')
           formRef.current?.reset()
         }
@@ -55,13 +61,14 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
   )
 
   const isDeposit = type === 'savings_deposit'
-  const canSubmit = isDeposit ? !!goalId : true
+  const canSubmit = isDeposit ? !!goalId : !!accountId
 
   return (
     <form ref={formRef} action={formAction} className="space-y-5">
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="category_id" value={isDeposit ? '' : categoryId} />
       <input type="hidden" name="goal_id" value={isDeposit ? goalId : ''} />
+      <input type="hidden" name="account_id" value={isDeposit ? '' : accountId} />
       <input type="hidden" name="interval" value={interval} />
 
       {/* Type toggle */}
@@ -157,29 +164,54 @@ export function AddRecurringForm({ categories, goals, onDone }: AddRecurringForm
           )}
         </div>
       ) : (
-        <div>
-          <label className="text-xs font-semibold text-on-surface-variant">Kategorie</label>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {filteredCategories.map((cat) => {
-              const Icon = ICON_MAP[cat.icon]
-              return (
-                <button
-                  key={cat.id}
-                  type="button"
-                  onClick={() => setCategoryId(cat.id)}
-                  className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
-                    categoryId === cat.id
-                      ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
-                      : 'bg-surface-container text-muted-foreground'
-                  }`}
-                >
-                  {Icon && <Icon size={14} />}
-                  {cat.name}
-                </button>
-              )
-            })}
+        <>
+          <div>
+            <label className="text-xs font-semibold text-on-surface-variant">Kategorie</label>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {filteredCategories.map((cat) => {
+                const Icon = ICON_MAP[cat.icon]
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => setCategoryId(cat.id)}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      categoryId === cat.id
+                        ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
+                        : 'bg-surface-container text-muted-foreground'
+                    }`}
+                  >
+                    {Icon && <Icon size={14} />}
+                    {cat.name}
+                  </button>
+                )
+              })}
+            </div>
           </div>
-        </div>
+          <div>
+            <label className="text-xs font-semibold text-on-surface-variant">Konto</label>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {accounts.map((acc) => {
+                const Icon = PORTFOLIO_ICON_MAP[acc.icon] ?? PORTFOLIO_ICON_MAP.Wallet
+                return (
+                  <button
+                    key={acc.id}
+                    type="button"
+                    onClick={() => setAccountId(acc.id)}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all ${
+                      accountId === acc.id
+                        ? 'bg-secondary text-secondary-foreground ring-2 ring-ring'
+                        : 'bg-surface-container text-muted-foreground'
+                    }`}
+                  >
+                    <Icon size={14} />
+                    {acc.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Note */}

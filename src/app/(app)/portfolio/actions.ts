@@ -12,8 +12,8 @@ import {
 
 const accountSchema = z.object({
   name: z.string().min(1, 'Name fehlt').max(80),
-  type: z.enum(['savings', 'brokerage', 'cash', 'other']),
-  current_amount: z.coerce.number().finite(),
+  type: z.enum(['checking', 'savings', 'brokerage', 'cash', 'other']),
+  initial_amount: z.coerce.number().finite(),
   icon: z.string().min(1).max(40),
   color: z
     .string()
@@ -24,7 +24,7 @@ export async function addAccount(formData: FormData) {
   const parsed = accountSchema.safeParse({
     name: formData.get('name'),
     type: formData.get('type'),
-    current_amount: formData.get('current_amount'),
+    initial_amount: formData.get('initial_amount'),
     icon: formData.get('icon'),
     color: formData.get('color'),
   })
@@ -50,7 +50,7 @@ export async function editAccount(formData: FormData) {
   const parsed = accountSchema.safeParse({
     name: formData.get('name'),
     type: formData.get('type'),
-    current_amount: formData.get('current_amount'),
+    initial_amount: formData.get('initial_amount'),
     icon: formData.get('icon'),
     color: formData.get('color'),
   })

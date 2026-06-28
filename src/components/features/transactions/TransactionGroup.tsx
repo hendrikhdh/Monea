@@ -1,6 +1,6 @@
 'use client'
 
-import { Target } from 'lucide-react'
+import { Target, ArrowLeftRight } from 'lucide-react'
 import type { TransactionWithCategory } from '@/lib/types/database'
 import { ICON_MAP } from '@/components/features/categories/iconMap'
 import { getShapeForCategory } from '@/components/features/categories/organicShapes'
@@ -52,16 +52,17 @@ export function TransactionCard({
   onEdit?: (transaction: TransactionWithCategory) => void
 }) {
   const isDeposit = transaction.type === 'savings_deposit'
-  const IconComponent = !isDeposit && transaction.category
+  const isTransfer = transaction.type === 'transfer'
+  const IconComponent = !isDeposit && !isTransfer && transaction.category
     ? ICON_MAP[transaction.category.icon]
     : null
 
   const formatted = new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: 'EUR',
-    signDisplay: isDeposit ? 'never' : 'always',
+    signDisplay: isDeposit || isTransfer ? 'never' : 'always',
   }).format(
-    transaction.type === 'income' ? transaction.amount : isDeposit ? transaction.amount : -transaction.amount
+    transaction.type === 'income' || isDeposit || isTransfer ? transaction.amount : -transaction.amount
   )
 
   const timeFormatted = new Intl.DateTimeFormat('de-DE', {
@@ -73,17 +74,23 @@ export function TransactionCard({
     ? 'border-2 border-secondary bg-background'
     : isDeposit
       ? 'border-2 border-primary-container/40 bg-background'
-      : 'bg-surface-container-low'
+      : isTransfer
+        ? 'border-2 border-on-surface-variant/15 bg-background'
+        : 'bg-surface-container-low'
 
   const amountClass = transaction.type === 'income'
     ? 'text-success'
     : isDeposit
       ? 'text-primary'
-      : 'text-foreground'
+      : isTransfer
+        ? 'text-on-surface-variant'
+        : 'text-foreground'
 
   const subtitleLabel = isDeposit
     ? transaction.goal?.name ?? 'Sparziel'
-    : transaction.category?.name ?? 'Uncategorized'
+    : isTransfer
+      ? `${transaction.account?.name ?? 'Konto'} → ${transaction.to_account?.name ?? 'Konto'}`
+      : transaction.category?.name ?? 'Uncategorized'
 
   return (
     <button
@@ -101,12 +108,14 @@ export function TransactionCard({
           'flex h-12 w-12 shrink-0 items-center justify-center',
           isDeposit
             ? `${getShapeForCategory(transaction.goal_id ?? transaction.id)} bg-primary-container/30`
-            : transaction.category
-              ? getShapeForCategory(transaction.category.id)
-              : 'rounded-full'
+            : isTransfer
+              ? 'rounded-full bg-surface-container-high'
+              : transaction.category
+                ? getShapeForCategory(transaction.category.id)
+                : 'rounded-full'
         )}
         style={{
-          backgroundColor: isDeposit
+          backgroundColor: isDeposit || isTransfer
             ? undefined
             : transaction.category
               ? `${transaction.category.color}25`
@@ -115,6 +124,8 @@ export function TransactionCard({
       >
         {isDeposit ? (
           <Target size={20} className="text-primary" />
+        ) : isTransfer ? (
+          <ArrowLeftRight size={20} className="text-on-surface-variant" />
         ) : IconComponent ? (
           <IconComponent
             size={20}

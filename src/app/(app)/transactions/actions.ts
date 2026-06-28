@@ -9,12 +9,16 @@ import { createRecurring, updateRecurring, deleteRecurring } from '@/lib/supabas
 export async function addTransaction(formData: FormData) {
   const categoryId = formData.get('category_id') as string
   const goalId = formData.get('goal_id') as string
+  const accountId = formData.get('account_id') as string
+  const toAccountId = formData.get('to_account_id') as string
 
   const result = transactionSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
     goal_id: goalId || null,
+    account_id: accountId || null,
+    to_account_id: toAccountId || null,
     date: formData.get('date'),
     note: formData.get('note'),
   })
@@ -24,7 +28,11 @@ export async function addTransaction(formData: FormData) {
   }
 
   try {
-    await createTransaction(result.data)
+    await createTransaction({
+      ...result.data,
+      account_id: result.data.account_id ?? null,
+      to_account_id: result.data.to_account_id ?? null,
+    })
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to create transaction.' }
   }
@@ -32,6 +40,7 @@ export async function addTransaction(formData: FormData) {
   revalidatePath('/transactions')
   revalidatePath('/')
   revalidatePath('/goals')
+  revalidatePath('/portfolio')
   return { success: true }
 }
 
@@ -41,12 +50,16 @@ export async function editTransaction(formData: FormData) {
 
   const categoryId = formData.get('category_id') as string
   const goalId = formData.get('goal_id') as string
+  const accountId = formData.get('account_id') as string
+  const toAccountId = formData.get('to_account_id') as string
 
   const result = transactionSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
     goal_id: goalId || null,
+    account_id: accountId || null,
+    to_account_id: toAccountId || null,
     date: formData.get('date'),
     note: formData.get('note'),
   })
@@ -56,7 +69,11 @@ export async function editTransaction(formData: FormData) {
   }
 
   try {
-    await updateTransaction(id, result.data)
+    await updateTransaction(id, {
+      ...result.data,
+      account_id: result.data.account_id ?? null,
+      to_account_id: result.data.to_account_id ?? null,
+    })
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Failed to update transaction.' }
   }
@@ -64,6 +81,7 @@ export async function editTransaction(formData: FormData) {
   revalidatePath('/transactions')
   revalidatePath('/')
   revalidatePath('/goals')
+  revalidatePath('/portfolio')
   return { success: true }
 }
 
@@ -81,18 +99,21 @@ export async function removeTransaction(formData: FormData) {
   revalidatePath('/transactions')
   revalidatePath('/')
   revalidatePath('/goals')
+  revalidatePath('/portfolio')
   return { success: true }
 }
 
 export async function addRecurring(formData: FormData) {
   const categoryId = formData.get('category_id') as string
   const goalId = formData.get('goal_id') as string
+  const accountId = formData.get('account_id') as string
 
   const result = recurringSchema.safeParse({
     amount: formData.get('amount'),
     type: formData.get('type'),
     category_id: categoryId || null,
     goal_id: goalId || null,
+    account_id: accountId || null,
     interval: formData.get('interval'),
     start_date: formData.get('start_date'),
     note: formData.get('note'),
@@ -103,7 +124,10 @@ export async function addRecurring(formData: FormData) {
   }
 
   try {
-    await createRecurring(result.data)
+    await createRecurring({
+      ...result.data,
+      account_id: result.data.account_id ?? null,
+    })
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Fehler beim Erstellen.' }
   }

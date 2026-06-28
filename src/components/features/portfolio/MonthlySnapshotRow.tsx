@@ -1,6 +1,5 @@
 'use client'
 
-import { ChevronRight } from 'lucide-react'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
 import { cn } from '@/lib/utils'
 
@@ -13,24 +12,16 @@ interface MonthlySnapshotRowProps {
   year: number
   month: number
   amount: number
-  frozen: boolean
-  isCurrentMonth: boolean
-  onClick?: () => void
+  isCurrentMonth?: boolean
 }
 
-export function MonthlySnapshotRow({
-  year,
-  month,
-  amount,
-  frozen,
-  isCurrentMonth,
-  onClick,
-}: MonthlySnapshotRowProps) {
+// Read-only monthly cash-flow row. The freeze/override feature was superseded by
+// the account ledger (the Girokonto carries the cash flow now).
+export function MonthlySnapshotRow({ year, month, amount, isCurrentMonth }: MonthlySnapshotRowProps) {
   const isPositive = amount >= 0
-  const isEditable = !isCurrentMonth
 
-  const content = (
-    <>
+  return (
+    <div className="flex items-center gap-3 rounded-xl bg-surface-container-low p-4">
       <div className="flex h-10 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-surface-container">
         <span className="text-[10px] font-bold uppercase text-muted-foreground">
           {MONTH_NAMES[month - 1]}
@@ -42,7 +33,7 @@ export function MonthlySnapshotRow({
 
       <div className="flex-1 min-w-0">
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Monatssaldo
+          {isCurrentMonth ? 'Cashflow · laufend' : 'Cashflow'}
         </p>
         <p
           className={cn(
@@ -53,34 +44,6 @@ export function MonthlySnapshotRow({
           {isPositive ? '+' : ''}{formatCurrencyWithSymbol(amount)}
         </p>
       </div>
-
-      {frozen && (
-        <span className="rounded-full bg-secondary-container px-2 py-0.5 text-[10px] font-bold uppercase text-on-secondary-container">
-          Angepasst
-        </span>
-      )}
-
-      {isEditable && (
-        <ChevronRight size={16} className="text-muted-foreground" />
-      )}
-    </>
-  )
-
-  if (!isEditable) {
-    return (
-      <div className="flex items-center gap-3 rounded-xl bg-surface-container-low p-4">
-        {content}
-      </div>
-    )
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl bg-surface-container-low p-4 text-left transition-all active:scale-[0.98]"
-    >
-      {content}
-    </button>
+    </div>
   )
 }

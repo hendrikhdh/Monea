@@ -6,7 +6,6 @@ import { BottomSheet } from '@/components/ui/bottom-sheet'
 import { AccountCard } from './AccountCard'
 import { AddPortfolioAccountForm } from './AddPortfolioAccountForm'
 import { MonthlySnapshotRow } from './MonthlySnapshotRow'
-import { EditMonthlySnapshotForm } from './EditMonthlySnapshotForm'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Wallet, CalendarRange } from 'lucide-react'
@@ -24,7 +23,6 @@ type Sheet =
   | { kind: 'none' }
   | { kind: 'account-new' }
   | { kind: 'account-edit'; account: PortfolioAccount }
-  | { kind: 'month-edit'; balance: MonthlyBalance }
 
 export function PortfolioView({
   accounts,
@@ -37,7 +35,7 @@ export function PortfolioView({
   const close = () => setSheet({ kind: 'none' })
 
   const accountsSum = accounts.reduce((acc, a) => acc + a.current_amount, 0)
-  const monthlySum = monthlyBalances.reduce((acc, m) => acc + m.amount, 0)
+  const monthlySum = monthlyBalances.reduce((acc, m) => acc + m.liveAmount, 0)
 
   return (
     <div className="space-y-8 pb-24 pt-6">
@@ -70,20 +68,23 @@ export function PortfolioView({
         )}
       </section>
 
-      {/* Monatssalden */}
+      {/* Monatlicher Cashflow — read-only history (already part of the Girokonto balance) */}
       <section className="space-y-4">
         <div className="flex items-end justify-between">
-          <h2 className="font-heading text-xl font-bold text-foreground">Monatssalden</h2>
+          <h2 className="font-heading text-xl font-bold text-foreground">Cashflow</h2>
           <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground tabular-nums">
             {formatCurrencyWithSymbol(monthlySum)}
           </p>
         </div>
+        <p className="-mt-2 text-xs text-on-surface-variant">
+          Einnahmen − Ausgaben je Monat · bereits im Girokonto enthalten.
+        </p>
 
         {monthlyBalances.length === 0 ? (
           <EmptyState
             icon={CalendarRange}
             title="Noch keine Transaktionen erfasst"
-            description="Sobald du Einnahmen oder Ausgaben erfasst, siehst du hier deine monatlichen Salden."
+            description="Sobald du Einnahmen oder Ausgaben erfasst, siehst du hier deinen monatlichen Cashflow."
           />
         ) : (
           <div className="space-y-3">
@@ -92,10 +93,8 @@ export function PortfolioView({
                 key={`${mb.year}-${mb.month}`}
                 year={mb.year}
                 month={mb.month}
-                amount={mb.amount}
-                frozen={mb.frozen}
+                amount={mb.liveAmount}
                 isCurrentMonth={mb.year === currentYear && mb.month === currentMonth}
-                onClick={() => setSheet({ kind: 'month-edit', balance: mb })}
               />
             ))}
           </div>
@@ -117,15 +116,6 @@ export function PortfolioView({
         )}
         {sheet.kind === 'account-edit' && (
           <AddPortfolioAccountForm account={sheet.account} onDone={close} />
-        )}
-        {sheet.kind === 'month-edit' && (
-          <EditMonthlySnapshotForm
-            year={sheet.balance.year}
-            month={sheet.balance.month}
-            liveAmount={sheet.balance.liveAmount}
-            customAmount={sheet.balance.customAmount}
-            onDone={close}
-          />
         )}
       </BottomSheet>
     </div>

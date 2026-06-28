@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { seedDefaultCategories } from '@/lib/supabase/seedCategories'
+import { ensurePrimaryAccount } from '@/lib/supabase/portfolio'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         await seedDefaultCategories(supabase, user.id)
+        await ensurePrimaryAccount()
       }
       return NextResponse.redirect(`${origin}${next}`)
     }

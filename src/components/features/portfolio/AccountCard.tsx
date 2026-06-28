@@ -27,7 +27,14 @@ export function AccountCard({ account, onClick }: AccountCardProps) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="truncate text-base font-semibold text-foreground">{account.name}</p>
+        <div className="flex items-center gap-2">
+          <p className="truncate text-base font-semibold text-foreground">{account.name}</p>
+          {account.is_primary && (
+            <span className="shrink-0 rounded-full bg-primary-container/60 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-primary-foreground">
+              Haupt
+            </span>
+          )}
+        </div>
         <p className="text-xs text-on-surface-variant">
           {ACCOUNT_TYPE_LABELS[account.type]}
         </p>

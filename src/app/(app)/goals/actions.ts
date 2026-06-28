@@ -33,6 +33,8 @@ export async function addGoal(formData: FormData) {
       await createTransaction({
         category_id: null,
         goal_id: goal.id,
+        account_id: null,
+        to_account_id: null,
         amount: initialAmount,
         type: 'savings_deposit',
         date: new Date().toISOString().slice(0, 10),

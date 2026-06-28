@@ -15,20 +15,63 @@ export async function getAccounts(): Promise<PortfolioAccount[]> {
   if (error) throw error
   return (data ?? []).map((a) => ({
     ...a,
+    initial_amount: Number(a.initial_amount),
     current_amount: Number(a.current_amount),
   })) as PortfolioAccount[]
 }
 
+// Guarantee the user has a primary "Girokonto" account (lazily create it for
+// new users; existing users got one via the 20260628_account_ledger migration).
+export async function ensurePrimaryAccount(): Promise<PortfolioAccount> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { data: existing } = await supabase
+    .from('portfolio_accounts')
+    .select('*')
+    .eq('user_id', user.id)
+    .eq('is_primary', true)
+    .maybeSingle()
+
+  if (existing) {
+    return {
+      ...existing,
+      initial_amount: Number(existing.initial_amount),
+      current_amount: Number(existing.current_amount),
+    } as PortfolioAccount
+  }
+
+  const { data, error } = await supabase
+    .from('portfolio_accounts')
+    .insert({
+      user_id: user.id,
+      name: 'Girokonto',
+      type: 'checking',
+      initial_amount: 0,
+      current_amount: 0,
+      is_primary: true,
+      icon: 'Landmark',
+      color: '#56423b',
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as PortfolioAccount
+}
+
 export async function createAccount(
-  account: Pick<PortfolioAccount, 'name' | 'type' | 'current_amount' | 'icon' | 'color'>
+  account: Pick<PortfolioAccount, 'name' | 'type' | 'initial_amount' | 'icon' | 'color'>
 ): Promise<PortfolioAccount> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
+  // No transactions yet → current_amount starts equal to the start balance.
   const { data, error } = await supabase
     .from('portfolio_accounts')
-    .insert({ ...account, user_id: user.id })
+    .insert({ ...account, current_amount: account.initial_amount, user_id: user.id })
     .select()
     .single()
 
@@ -38,8 +81,9 @@ export async function createAccount(
 
 export async function updateAccount(
   id: string,
-  patch: Partial<Pick<PortfolioAccount, 'name' | 'type' | 'current_amount' | 'icon' | 'color'>>
+  patch: Partial<Pick<PortfolioAccount, 'name' | 'type' | 'initial_amount' | 'icon' | 'color'>>
 ): Promise<PortfolioAccount> {
+  // Changing initial_amount triggers a DB recompute of current_amount.
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('portfolio_accounts')
@@ -54,6 +98,32 @@ export async function updateAccount(
 
 export async function deleteAccount(id: string): Promise<void> {
   const supabase = await createClient()
+
+  const { data: account } = await supabase
+    .from('portfolio_accounts')
+    .select('is_primary')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (account?.is_primary) {
+    throw new Error('Das Girokonto kann nicht gelöscht werden.')
+  }
+
+  const [{ count: txCount }, { count: recCount }] = await Promise.all([
+    supabase
+      .from('transactions')
+      .select('id', { count: 'exact', head: true })
+      .or(`account_id.eq.${id},to_account_id.eq.${id}`),
+    supabase
+      .from('recurring_transactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('account_id', id),
+  ])
+
+  if ((txCount ?? 0) + (recCount ?? 0) > 0) {
+    throw new Error('Konto hat Buchungen und kann nicht gelöscht werden. Bitte zuerst umbuchen.')
+  }
+
   const { error } = await supabase
     .from('portfolio_accounts')
     .delete()
@@ -181,14 +251,11 @@ export async function getMonthlyBalanceLive(year: number, month: number): Promis
   return total
 }
 
+// Total = sum of all account balances. Account balances already include every
+// income/expense/transfer (the migration moved historical cash flow into the
+// auto-created Girokonto), so the monthly cash-flow is no longer added separately.
 export async function computeTotalPortfolio(): Promise<number> {
-  const [accounts, monthlyBalances] = await Promise.all([
-    getAccounts(),
-    getMonthlyBalances(),
-  ])
-
-  const accountsSum = accounts.reduce((acc, a) => acc + a.current_amount, 0)
-  const monthlySum = monthlyBalances.reduce((acc, m) => acc + m.amount, 0)
-  return accountsSum + monthlySum
+  const accounts = await getAccounts()
+  return accounts.reduce((acc, a) => acc + a.current_amount, 0)
 }
 

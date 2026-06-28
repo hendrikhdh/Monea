@@ -10,14 +10,15 @@ import { TransactionSearch } from './TransactionSearch'
 import { TransactionFilters } from './TransactionFilters'
 import { TransactionGroup } from './TransactionGroup'
 import { AddTransactionForm } from './AddTransactionForm'
-import type { TransactionWithCategory, Category, Goal } from '@/lib/types/database'
+import type { TransactionWithCategory, Category, Goal, PortfolioAccount } from '@/lib/types/database'
 
-type TxFilter = 'all' | 'income' | 'expense' | 'savings_deposit'
+type TxFilter = 'all' | 'income' | 'expense' | 'savings_deposit' | 'transfer'
 
 interface TransactionsViewProps {
   transactions: TransactionWithCategory[]
   categories: Category[]
   goals: Goal[]
+  accounts: PortfolioAccount[]
   initialFilter?: TxFilter
 }
 
@@ -59,7 +60,7 @@ function groupByDate(transactions: TransactionWithCategory[]) {
   return groups
 }
 
-export function TransactionsView({ transactions, categories, goals, initialFilter = 'all' }: TransactionsViewProps) {
+export function TransactionsView({ transactions, categories, goals, accounts, initialFilter = 'all' }: TransactionsViewProps) {
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editTransaction, setEditTransaction] = useState<TransactionWithCategory | null>(null)
   const [search, setSearch] = useState('')
@@ -158,7 +159,7 @@ export function TransactionsView({ transactions, categories, goals, initialFilte
             <p className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
               Neue Transaktion
             </p>
-            <AddTransactionForm categories={categories} goals={goals} />
+            <AddTransactionForm categories={categories} goals={goals} accounts={accounts} />
           </div>
         </aside>
       </div>
@@ -175,6 +176,7 @@ export function TransactionsView({ transactions, categories, goals, initialFilte
         <AddTransactionForm
           categories={categories}
           goals={goals}
+          accounts={accounts}
           transaction={editTransaction}
           onDone={handleClose}
         />

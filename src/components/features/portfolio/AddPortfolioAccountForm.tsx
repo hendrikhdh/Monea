@@ -23,10 +23,11 @@ interface AddPortfolioAccountFormProps {
 
 export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccountFormProps) {
   const isEdit = !!account
+  const isPrimary = !!account?.is_primary
 
   const [name, setName] = useState(account?.name ?? '')
   const [amount, setAmount] = useState(
-    account ? String(account.current_amount) : ''
+    account ? String(account.initial_amount) : ''
   )
   const [selectedType, setSelectedType] = useState<PortfolioAccountType>(account?.type ?? 'savings')
   const [selectedIcon, setSelectedIcon] = useState(account?.icon ?? 'Wallet')
@@ -39,7 +40,7 @@ export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccount
     setPrevAccount(account)
     if (account) {
       setName(account.name)
-      setAmount(String(account.current_amount))
+      setAmount(String(account.initial_amount))
       setSelectedType(account.type)
       setSelectedIcon(account.icon)
       setSelectedColor(account.color)
@@ -90,25 +91,31 @@ export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccount
         {isEdit ? 'Konto bearbeiten' : 'Neues Konto'}
       </h3>
 
-      {/* Type toggle */}
-      <div className="flex gap-2 rounded-full bg-surface-container-low p-1">
-        {TYPE_ORDER.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setSelectedType(t)}
-            className={cn(
-              'rounded-full px-4 py-2 text-xs font-semibold transition-all active:scale-95',
-              selectedType === t
-                ? 'bg-primary-container text-primary-foreground'
-                : 'text-muted-foreground'
-            )}
-          >
-            {ACCOUNT_TYPE_LABELS[t]}
-          </button>
-        ))}
-      </div>
-      <input type="hidden" name="type" value={selectedType} />
+      {/* Type toggle — locked to "Girokonto" for the primary account */}
+      {isPrimary ? (
+        <div className="rounded-full bg-surface-container-low px-4 py-2 text-xs font-semibold text-muted-foreground">
+          Girokonto · Hauptkonto
+        </div>
+      ) : (
+        <div className="flex gap-2 rounded-full bg-surface-container-low p-1">
+          {TYPE_ORDER.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setSelectedType(t)}
+              className={cn(
+                'rounded-full px-4 py-2 text-xs font-semibold transition-all active:scale-95',
+                selectedType === t
+                  ? 'bg-primary-container text-primary-foreground'
+                  : 'text-muted-foreground'
+              )}
+            >
+              {ACCOUNT_TYPE_LABELS[t]}
+            </button>
+          ))}
+        </div>
+      )}
+      <input type="hidden" name="type" value={isPrimary ? 'checking' : selectedType} />
 
       {/* Icon preview */}
       <button
@@ -177,28 +184,33 @@ export function AddPortfolioAccountForm({ account, onDone }: AddPortfolioAccount
         maxLength={80}
       />
 
-      {/* Amount input */}
-      <div className="relative w-full">
-        <input
-          name="current_amount"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          placeholder="0,00"
-          className="h-14 w-full rounded-2xl border border-input bg-transparent pl-5 pr-12 text-right text-base font-medium tabular-nums placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
-          required
-          disabled={pending}
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <span className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
+      {/* Start balance input — the current balance is derived from transactions */}
+      <div className="w-full space-y-1.5">
+        <div className="relative w-full">
+          <input
+            name="initial_amount"
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            placeholder="Startsaldo"
+            className="h-14 w-full rounded-2xl border border-input bg-transparent pl-5 pr-12 text-right text-base font-medium tabular-nums placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
+            required
+            disabled={pending}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <span className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground">€</span>
+        </div>
+        <p className="px-1 text-center text-[11px] text-muted-foreground">
+          Startsaldo — Buchungen aktualisieren den Kontostand automatisch.
+        </p>
       </div>
 
       {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
 
       {/* Action buttons */}
       <div className="flex w-full gap-3">
-        {isEdit && (
+        {isEdit && !isPrimary && (
           <button
             type="button"
             disabled={deletePending}

@@ -30,11 +30,12 @@ export async function GET() {
   try {
     const transactions = await getTransactions(10000)
 
-    const header = ['Datum', 'Typ', 'Betrag', 'Kategorie / Sparziel', 'Notiz']
+    const header = ['Datum', 'Typ', 'Betrag', 'Kategorie / Sparziel', 'Konto', 'Notiz']
     const typeLabel = {
       income: 'Einnahme',
       expense: 'Ausgabe',
       savings_deposit: 'Spareinlage',
+      transfer: 'Transfer',
     } as const
     const rows = transactions.map((tx) => [
       formatDateDE(tx.date),
@@ -43,6 +44,9 @@ export async function GET() {
       tx.type === 'savings_deposit'
         ? (tx.goal?.name ?? '')
         : (tx.category?.name ?? ''),
+      tx.type === 'transfer'
+        ? `${tx.account?.name ?? ''} → ${tx.to_account?.name ?? ''}`
+        : (tx.account?.name ?? ''),
       tx.note ?? '',
     ])
 
