@@ -10,6 +10,7 @@ export async function getAccounts(): Promise<PortfolioAccount[]> {
   const { data, error } = await supabase
     .from('portfolio_accounts')
     .select('*')
+    .order('sort_order', { ascending: true, nullsFirst: false })
     .order('created_at', { ascending: true })
 
   if (error) throw error
@@ -18,6 +19,23 @@ export async function getAccounts(): Promise<PortfolioAccount[]> {
     initial_amount: Number(a.initial_amount),
     current_amount: Number(a.current_amount),
   })) as PortfolioAccount[]
+}
+
+// Persist a new drag-and-drop ordering (sort_order = array index). RLS scopes to the user.
+export async function reorderAccounts(orderedIds: string[]): Promise<void> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase
+        .from('portfolio_accounts')
+        .update({ sort_order: index })
+        .eq('id', id)
+        .eq('user_id', user.id)
+    )
+  )
 }
 
 // Guarantee the user has a primary "Girokonto" account (lazily create it for
@@ -51,6 +69,7 @@ export async function ensurePrimaryAccount(): Promise<PortfolioAccount> {
       initial_amount: 0,
       current_amount: 0,
       is_primary: true,
+      sort_order: 0,
       icon: 'Landmark',
       color: '#56423b',
     })
@@ -68,10 +87,20 @@ export async function createAccount(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
+  // New accounts go to the end of the list.
+  const { data: maxRow } = await supabase
+    .from('portfolio_accounts')
+    .select('sort_order')
+    .eq('user_id', user.id)
+    .order('sort_order', { ascending: false, nullsFirst: false })
+    .limit(1)
+    .maybeSingle()
+  const nextOrder = (maxRow?.sort_order ?? -1) + 1
+
   // No transactions yet → current_amount starts equal to the start balance.
   const { data, error } = await supabase
     .from('portfolio_accounts')
-    .insert({ ...account, current_amount: account.initial_amount, user_id: user.id })
+    .insert({ ...account, current_amount: account.initial_amount, sort_order: nextOrder, user_id: user.id })
     .select()
     .single()
 

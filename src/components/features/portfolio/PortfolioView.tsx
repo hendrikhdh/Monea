@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { BottomSheet } from '@/components/ui/bottom-sheet'
-import { AccountCard } from './AccountCard'
+import { AccountReorderList } from './AccountReorderList'
 import { AddPortfolioAccountForm } from './AddPortfolioAccountForm'
 import { MonthlySnapshotRow } from './MonthlySnapshotRow'
 import { formatCurrencyWithSymbol } from '@/lib/utils/formatCurrency'
@@ -56,15 +56,10 @@ export function PortfolioView({
             cta={{ label: 'Konto hinzufügen', onClick: () => setSheet({ kind: 'account-new' }) }}
           />
         ) : (
-          <div className="space-y-3">
-            {accounts.map((account) => (
-              <AccountCard
-                key={account.id}
-                account={account}
-                onClick={() => setSheet({ kind: 'account-edit', account })}
-              />
-            ))}
-          </div>
+          <AccountReorderList
+            accounts={accounts}
+            onEdit={(account) => setSheet({ kind: 'account-edit', account })}
+          />
         )}
       </section>
 

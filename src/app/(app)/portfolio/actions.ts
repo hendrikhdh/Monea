@@ -6,6 +6,7 @@ import {
   createAccount,
   updateAccount,
   deleteAccount,
+  reorderAccounts,
   freezeMonth,
   unfreezeMonth,
 } from '@/lib/supabase/portfolio'
@@ -80,6 +81,19 @@ export async function removeAccount(formData: FormData) {
     return { ok: true as const }
   } catch (e) {
     return { error: e instanceof Error ? e.message : 'Konnte nicht löschen' }
+  }
+}
+
+export async function reorderAccountsAction(ids: string[]) {
+  if (!Array.isArray(ids) || ids.length === 0) return { error: 'Keine Reihenfolge.' }
+
+  try {
+    await reorderAccounts(ids)
+    revalidatePath('/portfolio')
+    revalidatePath('/')
+    return { ok: true as const }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'Konnte Reihenfolge nicht speichern.' }
   }
 }
 

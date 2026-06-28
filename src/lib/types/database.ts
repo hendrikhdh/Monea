@@ -87,6 +87,7 @@ export interface PortfolioAccount {
   initial_amount: number
   current_amount: number
   is_primary: boolean
+  sort_order: number | null
   icon: string
   color: string
   created_at: string
