@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Reorder, useDragControls } from 'framer-motion'
+import { Reorder } from 'framer-motion'
 import { toast } from 'sonner'
 import { AccountCard } from './AccountCard'
 import { reorderAccountsAction } from '@/app/(app)/portfolio/actions'
@@ -36,37 +36,17 @@ export function AccountReorderList({ accounts, onEdit }: AccountReorderListProps
   return (
     <Reorder.Group axis="y" values={order} onReorder={setOrder} as="div" className="space-y-3">
       {order.map((account) => (
-        <AccountReorderItem key={account.id} account={account} onEdit={onEdit} onCommit={commit} />
+        <Reorder.Item
+          key={account.id}
+          value={account}
+          onDragEnd={commit}
+          as="div"
+          whileDrag={{ scale: 1.02, zIndex: 10, boxShadow: '0 12px 28px rgba(62,39,35,0.18)' }}
+          className="cursor-grab rounded-xl active:cursor-grabbing"
+        >
+          <AccountCard account={account} onClick={() => onEdit(account)} />
+        </Reorder.Item>
       ))}
     </Reorder.Group>
-  )
-}
-
-function AccountReorderItem({
-  account,
-  onEdit,
-  onCommit,
-}: {
-  account: PortfolioAccount
-  onEdit: (account: PortfolioAccount) => void
-  onCommit: () => void
-}) {
-  const controls = useDragControls()
-
-  return (
-    <Reorder.Item
-      value={account}
-      dragListener={false}
-      dragControls={controls}
-      onDragEnd={onCommit}
-      as="div"
-      className="touch-pan-y"
-    >
-      <AccountCard
-        account={account}
-        onClick={() => onEdit(account)}
-        onHandlePointerDown={(e) => controls.start(e)}
-      />
-    </Reorder.Item>
   )
 }
