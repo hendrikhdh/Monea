@@ -6,6 +6,7 @@ import { LayoutDashboard, Receipt, BarChart3, Trophy, LogOut } from 'lucide-reac
 import { ORGANIC_SHAPES } from '@/components/features/categories/organicShapes'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { SidebarBlobs } from './SidebarBlobs'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard, shape: ORGANIC_SHAPES[0] },
@@ -26,11 +27,12 @@ export function Sidebar() {
     : email.charAt(0).toUpperCase() || '?'
 
   return (
-    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[260px] flex-col border-r border-sidebar-border/40 bg-sidebar lg:flex">
+    <aside className="fixed left-0 top-0 z-40 hidden h-screen w-[260px] flex-col overflow-hidden border-r border-sidebar-border/40 bg-sidebar lg:flex">
+      <SidebarBlobs />
       <div className="px-8 pt-10 pb-12">
         <Link
           href="/"
-          className="font-display text-2xl tracking-tight text-sidebar-foreground lowercase"
+          className="font-display text-4xl tracking-tight text-sidebar-foreground lowercase"
         >
           Monéa
         </Link>
